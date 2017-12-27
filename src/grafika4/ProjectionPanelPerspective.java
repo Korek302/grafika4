@@ -3,6 +3,7 @@ package grafika4;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
@@ -14,9 +15,9 @@ public class ProjectionPanelPerspective extends JPanel
 	public ProjectionPanelPerspective() 
 	{
 		super();
-		setBackground(new Color(123, 123, 0));
+		setBackground(new Color(123, 123, 123));
 		obs = new int[4];
-		obs[0] = 500;
+		obs[0] = -500;
 		obs[1] = 500;
 		obs[2] = 500;
 		obs[3] = 1;
@@ -25,14 +26,18 @@ public class ProjectionPanelPerspective extends JPanel
 	@Override
     protected void paintComponent(Graphics g) 
     {
-		Point[] targetPointArray = new Point[3];
+		super.paintComponent(g);
 		
-		//int d = 500;
-		int f = 1000;
+		Point[] targetPointArray = new Point[3];
+		ArrayList<int[]> checker = new ArrayList<int[]>();
+		
 		double x;
 		double y;
 		
 		int i;
+		
+    	int centerizerX = this.getWidth()/2;
+    	int centerizerY = this.getHeight()/2;
 		
     	for(Triangle t : MainPanel.triangleList)
     	{
@@ -53,48 +58,6 @@ public class ProjectionPanelPerspective extends JPanel
     		i = 0;
     		for(int[] p : pointList)
     		{
-    			
-    			/*x = ((p[0] - obs[0]) * ((double)f/(double)p[2])) + obs[0];
-    			y = ((p[1] - obs[1]) * ((double)f/(double)p[2])) + obs[1];
-    			
-    			Point obsPoint = new Point((int)x, (int)y);
-    			
-    			targetPointArray[i] = obsPoint;
-    			i++;*/
-    			
-    			/*int[] p1 = translation(-p[0],-p[1],-p[2],p);
-    			int[] obs1 = translation(-p[0],-p[1],-p[2],obs);
-    			
-    			double angleY = Math.PI - Math.atan2(obs1[0], obs1[2]);
-    			int[] obs2 = rotateOY(angleY, obs1);
-    			int[] p2 = rotateOY(angleY, p1);
-    			
-    			double angleX = (-Math.PI/2) - Math.atan2(obs2[2], obs2[1]);
-    			int[] obs3 = rotateOX(angleX, obs2);
-    			int[] p3 = rotateOX(angleX, p2);
-    			
-    			int[] dv = 	new int[4];
-    			dv[0] = p[0] - obs[0];
-    			dv[1] = p[1] - obs[1];
-    			dv[2] = p[2] - obs[2];
-    			dv[3] = 1;
-    			
-    			int[] dv1 = translation(-p[0],-p[1],-p[2],dv);
-    			int[] dv2 = rotateOY(angleY, dv1);
-    			int[] dv3 = rotateOX(angleX, dv2);
-    			
-    			double angleZ = (Math.PI/2) - Math.atan2(dv3[0], dv3[1]);
-    			int[] dv4 = rotateOZ(angleZ, dv3);
-    			int[] obs4 = rotateOZ(angleZ, obs3);
-    					
-    			x = dv4[0]*(-(double)obs4[2]/(double)(obs4[2] + dv4[2]));
-    			y = dv4[1]*(-(double)obs4[2]/(double)(obs4[2] + dv4[2]));
-    			
-    			Point obsPoint = new Point((int)x, (int)y);
-    			
-    			targetPointArray[i] = obsPoint;
-    			i++;*/
-    			
     			double[][] rotMatrixX = new double[4][4];
     			double[][] rotMatrixY = new double[4][4];
     			double[][] rotMatrixZ = new double[4][4];
@@ -174,40 +137,49 @@ public class ProjectionPanelPerspective extends JPanel
     			
     			double[][] dd = matrixMul(transMatrix, e);
     			
-    			int ez = 200;
+    			int ex = 400;
+    			int ey = 0;
+    			int ez = 300;
+    			//double alfa = Math.PI/2;
+    			//double ez = 1/Math.tan(alfa/200);
     			
-    			x = (ez/dd[2][0]) * dd[0][0];
-    			y = (ez/dd[2][0]) * dd[1][0];
+    			x = (ez/dd[2][0]) * dd[0][0] - ex;
+    			y = (ez/dd[2][0]) * dd[1][0] - ey;
     			
     			System.out.println(x + ", " + y);
     			
-    			Point targetPoint = new Point((int)x + 500/*HALO tu jest na sztywno*/, (int)y + 100);
+    			Point targetPoint = new Point((int)x + centerizerX, 
+    					this.getHeight() - (int)y - centerizerY);
     			
     			targetPointArray[i] = targetPoint;
     			i++;
-    			
-    			/*x = p[0] * (d / ((double)d + (double)p[2]));
-    			y = p[1] * (d / ((double)d + (double)p[2]));
-    			
-    			targetPointArray[i] = new Point((int)x, (int)y);
-    			
-    			i++;*/
     		}
     		
-    		/*System.out.println((int)targetPointArray[0].getX() + " " +  (int)targetPointArray[0].getY() + " " +  
-    				(int)targetPointArray[1].getX() + " " +  (int)targetPointArray[1].getY());
-    		System.out.println((int)targetPointArray[1].getX() + " " +  (int)targetPointArray[1].getY() + " " +  
-    				(int)targetPointArray[2].getX() + " " +  (int)targetPointArray[2].getY());
-    		System.out.println((int)targetPointArray[2].getX() + " " + (int)targetPointArray[2].getY()
-    				 + " " +  
-    				(int)targetPointArray[0].getX() + " " +  (int)targetPointArray[0].getY());
-    		*/
-    		g.drawLine((int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
-    				(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY());
-    		g.drawLine((int)targetPointArray[1].getX(), (int)targetPointArray[1].getY(), 
-    				(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY());
-    		g.drawLine((int)targetPointArray[2].getX(), (int)targetPointArray[2].getY(), 
-    				(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY());
+    		int[] arr1 = {(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
+    				(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY()};
+    		int[] arr2 = {(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY(), 
+    				(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY()};
+    		int[] arr3 = {(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY(), 
+    				(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY()};
+    		
+    		if(!checker.contains(arr1))
+    		{
+    			g.drawLine((int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
+    					(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY());
+    			checker.add(arr1);
+    		}
+    		if(!checker.contains(arr2))
+    		{
+	    		g.drawLine((int)targetPointArray[1].getX(), (int)targetPointArray[1].getY(), 
+	    				(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY());
+	    		checker.add(arr2);
+    		}
+    		if(!checker.contains(arr3))
+    		{
+	    		g.drawLine((int)targetPointArray[2].getX(), (int)targetPointArray[2].getY(), 
+	    				(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY());
+	    		checker.add(arr3);
+    		}
     		
     	}
     }

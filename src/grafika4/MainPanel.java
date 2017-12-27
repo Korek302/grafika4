@@ -1,7 +1,9 @@
 package grafika4;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.swing.JPanel;
 
@@ -16,94 +18,71 @@ public class MainPanel extends JPanel
 	static ArrayList<Vertex> vertexList;
 	static ArrayList<Triangle> triangleList;
 	
+	
+	
     public MainPanel() 
     {
     	setLayout(null);
-    	
-    	vertexList = new ArrayList<Vertex>(
-    			Arrays.asList(
-    					new Vertex(100,100,100),
-    					new Vertex(200,100,100),
-    					new Vertex(100,100,200),
-    					new Vertex(200,100,200),
-    					new Vertex(100,200,100),
-    					new Vertex(200,200,100),
-    					new Vertex(100,200,200),
-    					new Vertex(200,200,200),
-    					new Vertex(150,250,100),
-    					new Vertex(150,250,200)))
-    					
-    					/*new Vertex(100,100,100),
-    					new Vertex(200, 100, 100),
-    					new Vertex(150,170,100)))*/;
-    	triangleList = new ArrayList<Triangle>(
-    			Arrays.asList(
-    					new Triangle(vertexList.get(0),
-    							vertexList.get(5),
-    							vertexList.get(1)),
-    					new Triangle(vertexList.get(0),
-    							vertexList.get(5),
-    							vertexList.get(4)),
-    					new Triangle(vertexList.get(2),
-    							vertexList.get(3),
-    							vertexList.get(7)),
-    					new Triangle(vertexList.get(2),
-    							vertexList.get(6),
-    							vertexList.get(7)),
-    					new Triangle(vertexList.get(0),
-    							vertexList.get(4),
-    							vertexList.get(7)),
-    					new Triangle(vertexList.get(0),
-    							vertexList.get(3),
-    							vertexList.get(7)),
-    					new Triangle(vertexList.get(2),
-    							vertexList.get(1),
-    							vertexList.get(5)),
-    					new Triangle(vertexList.get(2),
-    							vertexList.get(6),
-    							vertexList.get(5)),
-    					new Triangle(vertexList.get(0),
-    							vertexList.get(1),
-    							vertexList.get(2)),
-    					new Triangle(vertexList.get(0),
-    							vertexList.get(3),
-    							vertexList.get(2)),
-    					new Triangle(vertexList.get(4),
-    							vertexList.get(5),
-    							vertexList.get(8)),
-    					new Triangle(vertexList.get(7),
-    							vertexList.get(9),
-    							vertexList.get(6)),
-    					new Triangle(vertexList.get(5),
-    							vertexList.get(6),
-    							vertexList.get(9)),
-    					new Triangle(vertexList.get(5),
-    							vertexList.get(8),
-    							vertexList.get(9)),
-    					new Triangle(vertexList.get(4),
-    							vertexList.get(7),
-    							vertexList.get(9)),
-    					new Triangle(vertexList.get(4),
-    							vertexList.get(8),
-    							vertexList.get(9))
-    					
-    					/*new Triangle(vertexList.get(0),
-    							vertexList.get(1),
-    							vertexList.get(2))*/));
-    	
     	panel1 = new ProjectionPanelPerspective();
     	panel2 = new ProjectionPanelXZ();
     	panel3 = new ProjectionPanelYZ();
     	panel4 = new ProjectionPanelXY();
     	
     	panel1.setBounds(0, 0, 490, 340);
-    	panel2.setBounds(510, 0, 490, 340);
-    	panel3.setBounds(0, 360, 490, 340);
-    	panel4.setBounds(510, 360, 490, 340);
+    	panel2.setBounds(500, 0, 490, 340);
+    	panel3.setBounds(0, 350, 490, 340);
+    	panel4.setBounds(500, 350, 490, 340);
+	
+    	vertexList = new ArrayList<Vertex>();
+    	triangleList = new ArrayList<Triangle>();
+    	int offset = 0;
+    	
+    	String formFile = null;
+		
+    	try 
+		{
+			formFile = readFile("res/figura.txt");
+		} 
+		catch (IOException e) 
+		{
+			System.out.println("Error while loading file (figura.txt)");
+		}
+
+		String[] file = formFile.split("\\r?\\n|\\ ");
+		
+		int numberOfVertices = Integer.parseInt(file[0]);
+		offset++;
+		int currOffset = offset;
+		
+		int mul = 100;
+		
+		for(; offset < 4*numberOfVertices + currOffset; offset += 4)
+		{
+			vertexList.add(new Vertex((int)(mul*Double.parseDouble(file[offset + 1])), 
+					(int)(mul*Double.parseDouble(file[offset+2])),
+					(int)(mul*Double.parseDouble(file[offset+3]))));
+		}
+		
+		int numberOfTriangles = Integer.parseInt(file[offset]);
+		offset++;
+		
+		currOffset = offset;
+		for(; offset < 4*numberOfTriangles + currOffset; offset += 4)
+		{
+			triangleList.add(new Triangle(vertexList.get(Integer.parseInt(file[offset + 1]) - 1),
+					vertexList.get(Integer.parseInt(file[offset + 2]) - 1),
+					vertexList.get(Integer.parseInt(file[offset + 3]) - 1)));
+		}
+    	
     	add(panel1);
     	add(panel2);
     	add(panel3);
     	add(panel4);
     }
     
+    private String readFile(String path) throws IOException 
+	{
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return new String(encoded);
+	}
 }

@@ -24,7 +24,7 @@ public class Gui
 		MainPanel panel = new MainPanel();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("Grafika4");
-		frame.setSize(1000, 700);
+		frame.setSize(1000, 730);
 		frame.getContentPane().add(panel);
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(true);

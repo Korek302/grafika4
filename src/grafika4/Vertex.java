@@ -34,4 +34,19 @@ public class Vertex
 	{
 		return z;
 	}
+	
+	public void setX(int newX)
+	{
+		x = newX;
+	}
+	
+	public void setY(int newY)
+	{
+		y = newY;
+	}
+	
+	public void setZ(int newZ)
+	{
+		z = newZ;
+	}
 }

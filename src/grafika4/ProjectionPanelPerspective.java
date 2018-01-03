@@ -3,9 +3,16 @@ package grafika4;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.peer.PanelPeer;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+import javax.swing.event.AncestorListener;
 
 @SuppressWarnings("serial")
 public class ProjectionPanelPerspective extends JPanel
@@ -17,7 +24,7 @@ public class ProjectionPanelPerspective extends JPanel
 		super();
 		setBackground(new Color(123, 123, 123));
 		obs = new int[4];
-		obs[0] = -500;
+		obs[0] = 500;
 		obs[1] = 500;
 		obs[2] = 500;
 		obs[3] = 1;
@@ -78,12 +85,16 @@ public class ProjectionPanelPerspective extends JPanel
     			int[] obs3 = rotateOX(angleX, obs2);
     			
     			int[] dv = 	new int[4];
-    			dv[0] = p[0] - obs[0];
-    			dv[1] = p[1] - obs[1];
-    			dv[2] = p[2] - obs[2];
+    			dv[0] = 0;
+    			dv[1] = 1;
+    			dv[2] = 0;
     			dv[3] = 1;
     			
-    			angleZ = 0;
+    			int[] dv1 = translation(-p[0],-p[1],-p[2],dv);
+    			int[] dv2 = rotateOY(angleY, dv1);
+    			int[] dv3 = rotateOX(angleX, dv2);
+    			
+    			angleZ = (Math.PI/2) - Math.atan2(dv3[1], dv3[0]);
     			
     			for(int k = 0; k < rotMatrixX[0].length; k++)
     			{
@@ -128,28 +139,39 @@ public class ProjectionPanelPerspective extends JPanel
     			rotMatrixZ[3][3] = 1;
     			
     			double[][] e = new double[4][1];
-    			e[0][0] = p[0] - obs[0];
-    			e[1][0] = p[1] - obs[1];
-    			e[2][0] = p[2] - obs[2];
+    			e[0][0] = -p[0] + obs[0];
+    			e[1][0] = -p[1] + obs[1];
+    			e[2][0] = -p[2] + obs[2];
     			e[3][0] = 1;
+    			
+    			
     			
     			transMatrix = matrixMul(matrixMul(rotMatrixX, rotMatrixY), rotMatrixZ);
     			
+    			/*transMatrix[3][0] = transMatrix[3][0] - p[0];
+    			
+    			transMatrix[3][1] = transMatrix[3][1] - p[1];
+    			
+    			transMatrix[3][2] = transMatrix[3][2] - p[2];*/
+    			
     			double[][] dd = matrixMul(transMatrix, e);
     			
-    			int ex = 400;
+    			int ez = 400;
+    			int ex = 600;
     			int ey = 0;
-    			int ez = 300;
-    			//double alfa = Math.PI/2;
-    			//double ez = 1/Math.tan(alfa/200);
+    			
+    			//double alfa = Math.PI/1.9;
+    			//double ez = 200 * 1/Math.tan(alfa/2);
     			
     			x = (ez/dd[2][0]) * dd[0][0] - ex;
     			y = (ez/dd[2][0]) * dd[1][0] - ey;
     			
-    			System.out.println(x + ", " + y);
     			
-    			Point targetPoint = new Point((int)x + centerizerX, 
-    					this.getHeight() - (int)y - centerizerY);
+    			
+    			Point targetPoint = new Point((int)x + centerizerX/*???stala???*/, 
+    					/*this.getHeight() -*/ (int)y /*-*/ + centerizerY);
+    			
+    			System.out.println(targetPoint.getX() + ", " + targetPoint.getY());
     			
     			targetPointArray[i] = targetPoint;
     			i++;

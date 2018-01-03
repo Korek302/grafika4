@@ -32,4 +32,16 @@ public class Triangle
 	{
 		return vertex3;
 	}
+	public void setV1(Vertex v)
+	{
+		vertex1 = v;
+	}
+	public void setV2(Vertex v)
+	{
+		vertex2 = v;
+	}
+	public void setV3(Vertex v)
+	{
+		vertex3 = v;
+	}
 }

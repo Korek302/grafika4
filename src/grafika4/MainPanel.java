@@ -1,10 +1,10 @@
 package grafika4;
 
+import java.awt.Event;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
@@ -17,16 +17,15 @@ public class MainPanel extends JPanel
 	
 	static ArrayList<Vertex> vertexList;
 	static ArrayList<Triangle> triangleList;
-	
-	
+	static ArrayList<Integer> vertexIndicesList;
 	
     public MainPanel() 
     {
     	setLayout(null);
     	panel1 = new ProjectionPanelPerspective();
-    	panel2 = new ProjectionPanelXZ();
-    	panel3 = new ProjectionPanelYZ();
-    	panel4 = new ProjectionPanelXY();
+    	panel2 = new ProjectionPanelXZ(this);
+    	panel3 = new ProjectionPanelYZ(this);
+    	panel4 = new ProjectionPanelXY(this);
     	
     	panel1.setBounds(0, 0, 490, 340);
     	panel2.setBounds(500, 0, 490, 340);
@@ -35,13 +34,15 @@ public class MainPanel extends JPanel
 	
     	vertexList = new ArrayList<Vertex>();
     	triangleList = new ArrayList<Triangle>();
+    	vertexIndicesList = new ArrayList<Integer>();
+    	
     	int offset = 0;
     	
     	String formFile = null;
 		
     	try 
 		{
-			formFile = readFile("res/figura.txt");
+			formFile = readFile("res/suzanne.txt");
 		} 
 		catch (IOException e) 
 		{
@@ -72,12 +73,24 @@ public class MainPanel extends JPanel
 			triangleList.add(new Triangle(vertexList.get(Integer.parseInt(file[offset + 1]) - 1),
 					vertexList.get(Integer.parseInt(file[offset + 2]) - 1),
 					vertexList.get(Integer.parseInt(file[offset + 3]) - 1)));
+			
+			vertexIndicesList.add(Integer.parseInt(file[offset + 1]) - 1);
+			vertexIndicesList.add(Integer.parseInt(file[offset + 2]) - 1);
+			vertexIndicesList.add(Integer.parseInt(file[offset + 3]) - 1);
 		}
     	
     	add(panel1);
     	add(panel2);
     	add(panel3);
     	add(panel4);
+    }
+    
+    public void repaintAll()
+    {
+    	panel1.repaint();
+    	panel2.repaint();
+    	panel3.repaint();
+    	panel4.repaint();
     }
     
     private String readFile(String path) throws IOException 

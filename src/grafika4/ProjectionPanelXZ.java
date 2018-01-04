@@ -10,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
@@ -24,6 +25,7 @@ public class ProjectionPanelXZ extends JPanel  implements ActionListener, MouseM
 	public ProjectionPanelXZ(MainPanel mainPanel) 
 	{
 		super();
+		setLayout(null);
 		setBackground(new Color(123, 123, 123));
 		line_caught = false;
 		checker = new ArrayList<int[]>();
@@ -34,6 +36,11 @@ public class ProjectionPanelXZ extends JPanel  implements ActionListener, MouseM
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		
+		JLabel label = new JLabel("XZ");
+		label.setBounds(450, 300, 50, 50);
+		
+		add(label);
 	}
 	
 	@Override
@@ -47,9 +54,9 @@ public class ProjectionPanelXZ extends JPanel  implements ActionListener, MouseM
     	for(Triangle t : MainPanel.triangleList)
     	{
     		Point[] pointList = new Point[3];
-    		pointList[0] = new Point(t.getV1().getX() + centerizerX, this.getHeight() - t.getV1().getZ() - centerizerY);
-    		pointList[1] = new Point(t.getV2().getX() + centerizerX, this.getHeight() - t.getV2().getZ() - centerizerY);
-    		pointList[2] = new Point(t.getV3().getX() + centerizerX, this.getHeight() - t.getV3().getZ() - centerizerY);
+    		pointList[0] = new Point(t.getV1().getX() + centerizerX, t.getV1().getZ() + centerizerY);
+    		pointList[1] = new Point(t.getV2().getX() + centerizerX, t.getV2().getZ() + centerizerY);
+    		pointList[2] = new Point(t.getV3().getX() + centerizerX, t.getV3().getZ() + centerizerY);
     		
     		int[] arr1 = {(int)pointList[0].getX(), (int)pointList[0].getY(), 
     				(int)pointList[1].getX(), (int)pointList[1].getY()};
@@ -173,7 +180,7 @@ public class ProjectionPanelXZ extends JPanel  implements ActionListener, MouseM
 			for(Vertex v : MainPanel.vertexList)
 			{
 				v.setX(v.getX() + x_diff);
-				v.setZ(v.getZ() - y_diff);
+				v.setZ(v.getZ() + y_diff);
 			}
 			
 			MainPanel.triangleList.clear();

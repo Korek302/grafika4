@@ -12,7 +12,7 @@ public class MainPanel extends JPanel
 {
 	ProjectionPanelPerspective panel1;
 	ProjectionPanelXZ panel2;
-	ProjectionPanelYZ panel3;
+	ProjectionPanelZY panel3;
 	ProjectionPanelXY panel4;
 	
 	static ArrayList<Vertex> vertexList;
@@ -24,7 +24,7 @@ public class MainPanel extends JPanel
     	setLayout(null);
     	panel1 = new ProjectionPanelPerspective();
     	panel2 = new ProjectionPanelXZ(this);
-    	panel3 = new ProjectionPanelYZ(this);
+    	panel3 = new ProjectionPanelZY(this);
     	panel4 = new ProjectionPanelXY(this);
     	
     	panel1.setBounds(0, 0, 490, 340);
@@ -42,7 +42,7 @@ public class MainPanel extends JPanel
 		
     	try 
 		{
-			formFile = readFile("res/suzanne.txt");
+			formFile = readFile("res/cone.txt");
 		} 
 		catch (IOException e) 
 		{
@@ -55,12 +55,12 @@ public class MainPanel extends JPanel
 		offset++;
 		int currOffset = offset;
 		
-		int mul = 100;
+		int mul = 1;
 		
 		for(; offset < 4*numberOfVertices + currOffset; offset += 4)
 		{
 			vertexList.add(new Vertex((int)(mul*Double.parseDouble(file[offset + 1])), 
-					(int)(mul*Double.parseDouble(file[offset+2])),
+					-(int)(mul*Double.parseDouble(file[offset+2])),
 					(int)(mul*Double.parseDouble(file[offset+3]))));
 		}
 		

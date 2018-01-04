@@ -10,10 +10,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
-public class ProjectionPanelYZ extends JPanel implements ActionListener, MouseMotionListener, MouseListener
+public class ProjectionPanelZY extends JPanel implements ActionListener, MouseMotionListener, MouseListener
 {
 	boolean line_caught;
 	ArrayList<int[]> checker;
@@ -21,10 +22,11 @@ public class ProjectionPanelYZ extends JPanel implements ActionListener, MouseMo
 	int curr_y;
 	MainPanel mainPanel;
 	
-	public ProjectionPanelYZ(MainPanel mainPanel) 
+	public ProjectionPanelZY(MainPanel mainPanel) 
 	{
 		super();
 		setBackground(new Color(123, 123, 123));
+		setLayout(null);
 		line_caught = false;
 		checker = new ArrayList<int[]>();
 		curr_x = 0;
@@ -34,6 +36,11 @@ public class ProjectionPanelYZ extends JPanel implements ActionListener, MouseMo
 		
 		addMouseListener(this);
 		addMouseMotionListener(this);
+		
+		JLabel label = new JLabel("ZY");
+		label.setBounds(450, 300, 50, 50);
+		
+		add(label);
 	}
 	
 	@Override
@@ -49,9 +56,9 @@ public class ProjectionPanelYZ extends JPanel implements ActionListener, MouseMo
     	for(Triangle t : MainPanel.triangleList)
     	{
     		Point[] pointList = new Point[3];
-    		pointList[0] = new Point(t.getV1().getZ() + centerizerX, this.getHeight() - t.getV1().getY() - centerizerY);
-    		pointList[1] = new Point(t.getV2().getZ() + centerizerX, this.getHeight() - t.getV2().getY() - centerizerY);
-    		pointList[2] = new Point(t.getV3().getZ() + centerizerX, this.getHeight() - t.getV3().getY() - centerizerY);
+    		pointList[0] = new Point(t.getV1().getZ() + centerizerX, t.getV1().getY() + centerizerY);
+    		pointList[1] = new Point(t.getV2().getZ() + centerizerX, t.getV2().getY() + centerizerY);
+    		pointList[2] = new Point(t.getV3().getZ() + centerizerX, t.getV3().getY() + centerizerY);
     		
     		int[] arr1 = {(int)pointList[0].getX(), (int)pointList[0].getY(), 
     				(int)pointList[1].getX(), (int)pointList[1].getY()};
@@ -115,7 +122,6 @@ public class ProjectionPanelYZ extends JPanel implements ActionListener, MouseMo
 		}
 		
 		double d = Math.sqrt((yBothLine - y)*(yBothLine - y) + (xBothLine - x)*(xBothLine - x));
-		
 		if(d > 20)
 		{
 			return false;
@@ -175,13 +181,12 @@ public class ProjectionPanelYZ extends JPanel implements ActionListener, MouseMo
 			for(Vertex v : MainPanel.vertexList)
 			{
 				v.setZ(v.getZ() + x_diff);
-				v.setY(v.getY() - y_diff);
+				v.setY(v.getY() + y_diff);
 			}
 			
 			MainPanel.triangleList.clear();
 			for(int i = 0; i < MainPanel.vertexIndicesList.size(); i += 3)
 			{
-				
 				MainPanel.triangleList.add(new Triangle(
 						MainPanel.vertexList.get(MainPanel.vertexIndicesList.get(i)),
 						MainPanel.vertexList.get(MainPanel.vertexIndicesList.get(i+1)),

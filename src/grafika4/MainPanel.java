@@ -1,6 +1,5 @@
 package grafika4;
 
-import java.awt.Event;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.nio.file.Files;
@@ -18,11 +17,28 @@ public class MainPanel extends JPanel
 	static ArrayList<Vertex> vertexList;
 	static ArrayList<Triangle> triangleList;
 	static ArrayList<Integer> vertexIndicesList;
+	static ArrayList<Triangle> cameraPiramid;
+	
+	int[] obs;
+	int[] imageCenter;
 	
     public MainPanel() 
     {
     	setLayout(null);
-    	panel1 = new ProjectionPanelPerspective();
+    	
+    	obs = new int[4];
+		obs[0] = -500;
+		obs[1] = 500;
+		obs[2] = 500;
+		obs[3] = 1;
+		
+		imageCenter = new int[4];
+		imageCenter[0] = -50;
+		imageCenter[1] = 50;
+		imageCenter[2] = 50;
+		imageCenter[3] = 1;
+    	
+    	panel1 = new ProjectionPanelPerspective(this);
     	panel2 = new ProjectionPanelXZ(this);
     	panel3 = new ProjectionPanelZY(this);
     	panel4 = new ProjectionPanelXY(this);
@@ -42,7 +58,7 @@ public class MainPanel extends JPanel
 		
     	try 
 		{
-			formFile = readFile("res/cone.txt");
+			formFile = readFile("res/suzanne.txt");
 		} 
 		catch (IOException e) 
 		{
@@ -55,7 +71,7 @@ public class MainPanel extends JPanel
 		offset++;
 		int currOffset = offset;
 		
-		int mul = 1;
+		double mul = 100;
 		
 		for(; offset < 4*numberOfVertices + currOffset; offset += 4)
 		{
@@ -90,6 +106,12 @@ public class MainPanel extends JPanel
     	panel1.repaint();
     	panel2.repaint();
     	panel3.repaint();
+    	panel4.repaint();
+    }
+    
+    public void repaintXYandPP()
+    {
+    	panel1.repaint();
     	panel4.repaint();
     }
     

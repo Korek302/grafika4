@@ -3,31 +3,27 @@ package grafika4;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.peer.PanelPeer;
 import java.util.ArrayList;
-
 import javax.swing.JPanel;
-import javax.swing.event.AncestorListener;
 
 @SuppressWarnings("serial")
 public class ProjectionPanelPerspective extends JPanel
 {
-	int[] obs;
+	MainPanel mainPanel;
 	
-	public ProjectionPanelPerspective() 
+	int[] obs;
+	int[] imageCenter;
+	
+	public ProjectionPanelPerspective(MainPanel mainPanel) 
 	{
 		super();
+		
+		this.mainPanel = mainPanel;
+		
 		setBackground(new Color(123, 123, 123));
-		obs = new int[4];
-		obs[0] = 500;
-		obs[1] = 500;
-		obs[2] = 500;
-		obs[3] = 1;
+		
+		this.obs = mainPanel.obs;
+		this.imageCenter = mainPanel.imageCenter;
 	}
 	
 	@Override
@@ -35,27 +31,22 @@ public class ProjectionPanelPerspective extends JPanel
     {
 		super.paintComponent(g);
 		
+		this.obs = mainPanel.obs;
+		this.imageCenter = mainPanel.imageCenter;
+		
 		Point[] targetPointArray = new Point[3];
 		ArrayList<int[]> checker = new ArrayList<int[]>();
 		
-		double x;
-		double y;
+		int x;
+		int y;
 		
 		int i;
+		double d = dist2p(obs, imageCenter);
 		
-    	int centerizerX = this.getWidth()/2;
-    	int centerizerY = this.getHeight()/2;
-    	
-    	double[][] rotMatrixX = new double[4][4];
-		double[][] rotMatrixY = new double[4][4];
-		double[][] rotMatrixZ = new double[4][4];
+    	int centerizerX = this.getWidth()/2 + imageCenter[0];
+    	int centerizerY = this.getHeight()/2 + imageCenter[1];
 		
-		
-		double[][] transMatrix = new double[4][4];
-		
-		double angleX;
-    	double angleY;
-    	double angleZ;
+		double[][] transMatrix = transMatrix(obs, imageCenter);
     			
     	for(Triangle t : MainPanel.triangleList)
     	{
@@ -76,107 +67,17 @@ public class ProjectionPanelPerspective extends JPanel
     		i = 0;
     		for(int[] p : pointList)
     		{
-    			int[] obs1 = translation(-p[0],-p[1],-p[2],obs);
+    			double[][] tempP = pToCol(p);
     			
-    			//angleY = Math.PI - Math.atan2(obs1[0], obs1[2]);
-    			angleY = -(Math.PI/2) + Math.atan2(obs1[0], obs1[2]);
-    			angleY = Math.PI/4;
+    			tempP = matrixMul(transMatrix, tempP);
     			
-    			int[] obs2 = rotateOY(angleY, obs1);
-    			
-    			//angleX = -(Math.PI/2) - Math.atan2(obs2[2], obs2[1]);
-    			angleX = Math.PI + Math.atan2(obs2[2], obs2[1]);
-    			angleX = Math.PI/4;
-    			
-    			int[] obs3 = rotateOX(angleX, obs2);
-    			
-    			int[] v = new int[4];
-    			v[0] = 0;
-    			v[1] = 1;
-    			v[2] = 0;
-    			v[3] = 1;
-    			
-    			int[] v1 = translation(-p[0],-p[1],-p[2],v);
-    			int[] v2 = rotateOY(angleY, v1);
-    			int[] v3 = rotateOX(angleX, v2);
-    			
-    			//angleZ = (Math.PI/2) - Math.atan2(v3[1], v3[0]);
-    			angleZ = (Math.PI/2) - Math.atan2(v3[0], v3[1]);
-    			angleZ = Math.PI/4;
-    			
-    			for(int k = 0; k < rotMatrixX[0].length; k++)
-    			{
-    				for(int j = 0; j < rotMatrixX.length; j++)
-    				{
-    					rotMatrixX[k][j] = 0;
-    				}
-    			}
-    			for(int k = 0; k < rotMatrixY[0].length; k++)
-    			{
-    				for(int j = 0; j < rotMatrixY.length; j++)
-    				{
-    					rotMatrixY[k][j] = 0;
-    				}
-    			}
-    			for(int k = 0; k < rotMatrixZ[0].length; k++)
-    			{
-    				for(int j = 0; j < rotMatrixZ.length; j++)
-    				{
-    					rotMatrixZ[k][j] = 0;
-    				}
-    			}
-    			rotMatrixX[0][0] = 1;
-    			rotMatrixX[1][1] = Math.cos(angleX);
-    			rotMatrixX[1][2] = Math.sin(angleX);
-    			rotMatrixX[2][1] = -Math.sin(angleX);
-    			rotMatrixX[2][2] = Math.cos(angleX);
-    			rotMatrixX[3][3] = 1;
-    			
-    			rotMatrixY[0][0] = Math.cos(angleY);
-    			rotMatrixY[0][2] = -Math.sin(angleY);
-    			rotMatrixY[1][1] = 1;
-    			rotMatrixY[2][0] = Math.sin(angleY);
-    			rotMatrixY[2][2] = Math.cos(angleY);
-    			rotMatrixY[3][3] = 1;
-    			
-    			rotMatrixZ[0][0] = Math.cos(angleZ);
-    			rotMatrixZ[0][1] = Math.sin(angleZ);
-    			rotMatrixZ[1][0] = -Math.sin(angleZ);
-    			rotMatrixZ[1][1] = Math.cos(angleZ);
-    			rotMatrixZ[2][2] = 1;
-    			rotMatrixZ[3][3] = 1;
-    			
-    			double[][] e = new double[4][1];
-    			e[0][0] = p[0] - obs[0];
-    			e[1][0] = p[1] - obs[1];
-    			e[2][0] = p[2] - obs[2];
-    			e[3][0] = 1;
-    			
-    			transMatrix = matrixMul(matrixMul(rotMatrixX, rotMatrixY), rotMatrixZ);
-    			
-    			double[][] dd = matrixMul(transMatrix, e);
-    			
-    			double ez = 300;
+    			x = (int) (tempP[0][0] * (d/(d + tempP[2][0])));
+    			y = (int) (tempP[1][0] * (d/(d + tempP[2][0])));
     			
     			
-    			//double alfa = Math.PI/2;
+    			Point targetPoint = new Point(x + centerizerX, y + centerizerY);
     			
-    			//double ez = 300*1/Math.tan(alfa/2);
-    			
-    			//double ez = 1/Math.atan(2/alfa);
-    			
-    			//System.out.println(ez);
-    			
-    			double ex = obs[0]*(1 - ((ez - obs[2])/(-obs[2])));
-    			double ey = obs[1]*(1 - ((ez - obs[2])/(-obs[2])));
-    			
-    			x = (ez/dd[2][0]) * dd[0][0] - ex;
-    			y = (ez/dd[2][0]) * dd[1][0] - ey;
-    			
-    			
-    			Point targetPoint = new Point((int)x + centerizerX, (int)y + centerizerY);
-    			
-    			System.out.println(targetPoint.getX() + ", " + (targetPoint.getY()));
+    			//System.out.println(targetPoint.getX() + ", " + (targetPoint.getY()));
     			
     			targetPointArray[i] = targetPoint;
     			i++;
@@ -246,7 +147,7 @@ public class ProjectionPanelPerspective extends JPanel
 		return newPoint;
 	}
 	
-	public int[] translation(int tx, int ty, int tz, int[] point)
+	public int[] translation(double tx, double ty, double tz, int[] point)
 	{
 		double[][] transMatrix = new double[4][4];
 		double[][] tempPoint = new double[4][1];
@@ -255,7 +156,7 @@ public class ProjectionPanelPerspective extends JPanel
 		
 		for(int i = 0; i < point.length; i++)
 		{
-			tempPoint[i][0] = point[i];
+			tempPoint[i][0] = (double)point[i];
 		}
 		
 		for(int i = 0; i < transMatrix[0].length; i++)
@@ -277,7 +178,7 @@ public class ProjectionPanelPerspective extends JPanel
 		
 		for(int i = 0; i < newPoint.length; i++)
 		{
-			newPoint[i] = (int)newPointTemp[i][0];
+			newPoint[i] = (int) newPointTemp[i][0];
 		}
 		
 		return newPoint;
@@ -426,4 +327,114 @@ public class ProjectionPanelPerspective extends JPanel
 
         return C;
     }
+	
+	public double dist2p(int[] p1, int[] p2)
+	{
+		return Math.sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * 
+				(p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
+	}
+	
+	private double[][] transMatrix(int[] pO, int[] pC)
+	{
+		double[][] transMatrix1 = new double[4][4];
+		double[][] transMatrix2 = new double[4][4];
+		double[][] transMatrix3 = new double[4][4];
+		double[][] transMatrix4 = new double[4][4];
+		double[][] transMatrixFinal = new double[4][4];
+		
+		for(int i = 0; i < transMatrix1[0].length; i++)
+		{
+			for(int j = 0; j < transMatrix1.length; j++)
+			{
+				transMatrix1[i][j] = 0;
+			}
+		}
+		for(int i = 0; i < transMatrix2[0].length; i++)
+		{
+			for(int j = 0; j < transMatrix2.length; j++)
+			{
+				transMatrix2[i][j] = 0;
+			}
+		}
+		for(int i = 0; i < transMatrix3[0].length; i++)
+		{
+			for(int j = 0; j < transMatrix3.length; j++)
+			{
+				transMatrix3[i][j] = 0;
+			}
+		}
+		for(int i = 0; i < transMatrix4[0].length; i++)
+		{
+			for(int j = 0; j < transMatrix4.length; j++)
+			{
+				transMatrix4[i][j] = 0;
+			}
+		}
+		for(int i = 0; i < transMatrixFinal[0].length; i++)
+		{
+			for(int j = 0; j < transMatrixFinal.length; j++)
+			{
+				transMatrixFinal[i][j] = 0;
+			}
+		}
+		transMatrix1[0][0] = 1;
+		transMatrix1[1][1] = 1;
+		transMatrix1[2][2] = 1;
+		transMatrix1[3][3] = 1;
+		transMatrix1[0][3] = -pC[0];
+		transMatrix1[1][3] = -pC[1];
+		transMatrix1[2][3] = -pC[2];
+		
+		int[] pO1 = translation(-pC[0], -pC[1], -pC[2], pO);
+		
+		double angleY = -(Math.PI/2) + Math.atan2(pO1[0], pO1[2]);
+		transMatrix2[0][0] = Math.cos(angleY);
+		transMatrix2[2][2] = Math.cos(angleY);
+		transMatrix2[0][2] = -Math.sin(angleY);
+		transMatrix2[2][0] = Math.sin(angleY);
+		transMatrix2[1][1] = 1;
+		transMatrix2[3][3] = 1;
+		
+		int[] pO2 = rotateOY(angleY, pO1);
+		
+		double angleX = Math.PI + Math.atan2(pO2[2], pO2[1]);
+		transMatrix3[2][2] = Math.cos(angleX);
+		transMatrix3[1][1] = Math.cos(angleX);
+		transMatrix3[1][2] = Math.sin(angleX);
+		transMatrix3[2][1] = -Math.sin(angleX);
+		transMatrix3[0][0] = 1;
+		transMatrix3[3][3] = 1;
+		
+		int v[] = new int[4];
+		v[0] = 0;
+		v[1] = 1;
+		v[2] = 0;
+		v[3] = 1;
+		
+		int[] v1 = translation(-pC[0], -pC[1], -pC[2], v);
+		int[] v2 = rotateOY(angleY, v1);
+		int[] v3 = rotateOX(angleX, v2);
+		
+		double angleZ = (Math.PI/2) - Math.atan2(v3[0], v3[1]);
+		transMatrix4[0][0] = Math.cos(angleZ);
+		transMatrix4[1][1] = Math.cos(angleZ);
+		transMatrix4[0][1] = Math.sin(angleZ);
+		transMatrix4[1][0] = -Math.sin(angleZ);
+		transMatrix4[2][2] = 1;
+		transMatrix4[3][3] = 1;
+		
+		transMatrixFinal = matrixMul(matrixMul(matrixMul(transMatrix1, transMatrix2), transMatrix3), transMatrix4);
+		
+		return transMatrixFinal;
+	}
+	
+	private double[][] pToCol(int[] p)
+	{
+		double[][] out = new double[4][1];
+		for(int i = 0; i < p.length; i++)
+		{
+			out[i][0] = (double)p[i];
+		}
+		return out;
+	}
 }

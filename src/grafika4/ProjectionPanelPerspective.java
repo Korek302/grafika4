@@ -41,7 +41,7 @@ public class ProjectionPanelPerspective extends JPanel
 		int y;
 		
 		int i;
-		double d = dist2p(obs, imageCenter);
+		double d = MainPanel.dist2p(obs, imageCenter);
 		
     	int centerizerX = this.getWidth()/2 + imageCenter[0];
     	int centerizerY = this.getHeight()/2 + imageCenter[1];
@@ -327,12 +327,6 @@ public class ProjectionPanelPerspective extends JPanel
 
         return C;
     }
-	
-	public double dist2p(int[] p1, int[] p2)
-	{
-		return Math.sqrt((p2[0] - p1[0]) * (p2[0] - p1[0]) + (p2[1] - p1[1]) * 
-				(p2[1] - p1[1]) + (p2[2] - p1[2]) * (p2[2] - p1[2]));
-	}
 	
 	private double[][] transMatrix(int[] pO, int[] pC)
 	{

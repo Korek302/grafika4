@@ -83,7 +83,10 @@ public class ProjectionPanelPerspective extends JPanel
     			i++;
     		}
     		
-    		int[] arr1 = {(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
+    		flatShading(targetPointArray, 
+    				new int[]{t.getV1().getColor(), t.getV2().getColor(), t.getV3().getColor()},  g);
+    		
+    		/*int[] arr1 = {(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
     				(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY()};
     		int[] arr2 = {(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY(), 
     				(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY()};
@@ -107,7 +110,7 @@ public class ProjectionPanelPerspective extends JPanel
 	    		g.drawLine((int)targetPointArray[2].getX(), (int)targetPointArray[2].getY(), 
 	    				(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY());
 	    		checker.add(arr3);
-    		}
+    		}*/
     		
     	}
     	checker.clear();
@@ -430,5 +433,47 @@ public class ProjectionPanelPerspective extends JPanel
 			out[i][0] = (double)p[i];
 		}
 		return out;
+	}
+
+	public void gourandShading(Point[] pList)
+	{
+		
+	}
+	public void flatShading(Point[] pList, int[] colorList, Graphics g)
+	{
+		int color = MainPanel.int2RGB(
+				(MainPanel.getRed(colorList[0]) + MainPanel.getRed(colorList[1]) 
+				+ MainPanel.getRed(colorList[2]))/3, 
+				(MainPanel.getGreen(colorList[0]) + MainPanel.getGreen(colorList[1]) 
+				+ MainPanel.getGreen(colorList[2]))/3, 
+				(MainPanel.getBlue(colorList[0]) + MainPanel.getBlue(colorList[1]) 
+				+ MainPanel.getBlue(colorList[2]))/3);
+		g.setColor(new Color(color));
+		for(int i = 0; i < this.getHeight(); i++)
+		{
+			for(int j = 0; j < this.getWidth(); j++)
+			{
+				if(PointInTriangle(new Point(i, j), pList[0], pList[1], pList[2]))
+				{
+					g.drawLine(i, j, i, j);
+				}
+			}
+		}
+		
+	}
+	float sign (Point p1, Point p2, Point p3)
+	{
+	    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+	}
+
+	boolean PointInTriangle (Point pt, Point v1, Point v2, Point v3)
+	{
+	    boolean b1, b2, b3;
+
+	    b1 = sign(pt, v1, v2) < 0.0f;
+	    b2 = sign(pt, v2, v3) < 0.0f;
+	    b3 = sign(pt, v3, v1) < 0.0f;
+
+	    return ((b1 == b2) && (b2 == b3));
 	}
 }

@@ -43,6 +43,7 @@ public class MainPanel extends JPanel
 		light[0] = -500;
 		light[1] = 500;
 		light[2] = -500;
+		light[3] = 1;
     	
     	panel1 = new ProjectionPanelPerspective(this);
     	panel2 = new ProjectionPanelXZ(this);
@@ -154,7 +155,7 @@ public class MainPanel extends JPanel
 			
     		//Vl
     		double distToL = dist2p(new int[]{v.getX(), v.getY(), v.getZ()}, light);
-    		v.setVo(new Vector((light[0]-v.getX())/distToL, 
+    		v.setVl(new Vector((light[0]-v.getX())/distToL, 
     				(light[1]-v.getY())/distToL, 
     				(light[2]-v.getZ())/distToL));
 			
@@ -197,20 +198,20 @@ public class MainPanel extends JPanel
     	double Sr = 0;
     	double Sg = 0;
     	double Sb = 0;
-    	double g = 0.7;
-    	double kdr = 2;
-    	double kdg = 2;
-    	double kdb = 2;
-    	double ksr = 3;
-    	double ksg = 3;
-    	double ksb = 3;
-    	double kar = 5;
-    	double kag = 5;
-    	double kab = 5;
-    	double Er = 0.9;
+    	double g = 0;
+    	double kdr = 20;
+    	double kdg = 0.2;
+    	double kdb = 0.2;
+    	double ksr = 0;
+    	double ksg = 0.3;
+    	double ksb = 0.3;
+    	double kar = 0;
+    	double kag = 0.5;
+    	double kab = 0.5;
+    	double Er = 60;
     	double Eg = 0.5;
     	double Eb = 0.5;
-    	double Ar = 0.3;
+    	double Ar = 50;
     	double Ag = 0.3;
     	double Ab = 0.3;
     	
@@ -232,15 +233,16 @@ public class MainPanel extends JPanel
     				Eb*vectorDotProd(v.getVn(), v.getVl()) 
     				+ ksb*lightAttenuation(distToL)*
     				Eb*Math.pow(vectorDotProd(v.getVl(), v.getVo()), g) + kab * Ab;
-    		
-    		v.setColor(int2RGB((int)Lr * 240, (int)Lg * 0, (int)Lb * 0));
+    		System.out.println("Lr: " + Lr + "Lg: " + Lg + "Lb: " + Lb);
+    		//System.out.println(vectorDotProd(v.getVn(), v.getVl()) );
+    		v.setColor(int2RGB((int)(Lr*240), (int)(Lg), (int)(Lb)));
     	}
     }
     private double lightAttenuation(double dist)
     {
-    	int c0 = 100;
-    	int c1 = 100;
-    	int c2 = 100;
+    	double c0 = 0.1;
+    	double c1 = 0.1;
+    	double c2 = 0;
     	return Math.min(1/(c2*dist*dist + c1*dist + c0), 1);
     }
     public static double dist2p(int[] p1, int[] p2)

@@ -35,7 +35,10 @@ public class ProjectionPanelPerspective extends JPanel
 		this.imageCenter = mainPanel.imageCenter;
 		
 		Point[] targetPointArray = new Point[3];
-		ArrayList<int[]> checker = new ArrayList<int[]>();
+		//ArrayList<int[]> checker = new ArrayList<int[]>();
+		int[][] pointsAfterTrans = new int[3][3];
+		int[][] zbuffer = new int[this.getHeight()][this.getWidth()];
+		int[][] cbuffer = new int[this.getHeight()][this.getWidth()];
 		
 		int x;
 		int y;
@@ -47,6 +50,15 @@ public class ProjectionPanelPerspective extends JPanel
     	int centerizerY = this.getHeight()/2 + imageCenter[1];
 		
 		double[][] transMatrix = transMatrix(obs, imageCenter);
+		
+		for(int j = 0; j< this.getHeight(); j++)
+		{
+			for(int k = 0; k < this.getWidth(); k++)
+			{
+				zbuffer[j][k] = 99999;
+				cbuffer[j][k] = MainPanel.int2RGB(123,123,123);
+			}
+		}
     			
     	for(Triangle t : MainPanel.triangleList)
     	{
@@ -78,13 +90,49 @@ public class ProjectionPanelPerspective extends JPanel
     			Point targetPoint = new Point(x + centerizerX, y + centerizerY);
     			
     			//System.out.println(targetPoint.getX() + ", " + (targetPoint.getY()));
-    			
+    			pointsAfterTrans[i] = new int[]{(int)tempP[0][0], (int)tempP[1][0], (int)tempP[2][0]};
     			targetPointArray[i] = targetPoint;
     			i++;
     		}
     		
-    		flatShading(targetPointArray, 
-    				new int[]{t.getV1().getColor(), t.getV2().getColor(), t.getV3().getColor()},  g);
+    		int z = 99999;
+    		for(int j = 0; j < this.getHeight(); j++)
+    		{
+    			for(int k = 0; k < this.getWidth(); k++)
+    			{
+    				if(PointInTriangle(new Point(j, k), targetPointArray[0], targetPointArray[1], targetPointArray[2]))
+    				{
+    					z = pointsAfterTrans[0][2];
+    					if(pointsAfterTrans[1][2] < z)
+    					{
+    						z = pointsAfterTrans[1][2];
+    					}
+    					if(pointsAfterTrans[2][2] < z)
+    					{
+    						z = pointsAfterTrans[2][2];
+    					}
+    						
+		    			if(zbuffer[j][k] > z)
+		    			{
+		    				zbuffer[j][k] = z;
+		    				cbuffer[j][k] = flatShadingColor(new Point(j, k), 
+		    						new int[]{t.getV1().getColor(), t.getV2().getColor(), t.getV3().getColor()});
+		    			}
+    				}
+    			}
+    		}
+    		for(int j = 0; j < this.getHeight(); j++)
+    		{
+    			for(int k = 0; k < this.getWidth(); k++)
+    			{
+    				g.setColor(new Color(cbuffer[j][k]));
+    				g.drawLine(j, k, j, k);
+    			}
+    		}
+    		
+    		
+    		/*flatShading(targetPointArray, 
+    				new int[]{t.getV1().getColor(), t.getV2().getColor(), t.getV3().getColor()},  g);*/
     		
     		/*int[] arr1 = {(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
     				(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY()};
@@ -113,7 +161,7 @@ public class ProjectionPanelPerspective extends JPanel
     		}*/
     		
     	}
-    	checker.clear();
+    	//checker.clear();
     }
 	
 	public int[] resize(int sx, int sy, int sz, int[] point)
@@ -434,11 +482,6 @@ public class ProjectionPanelPerspective extends JPanel
 		}
 		return out;
 	}
-
-	public void gourandShading(Point[] pList)
-	{
-		
-	}
 	public void flatShading(Point[] pList, int[] colorList, Graphics g)
 	{
 		int color = MainPanel.int2RGB(
@@ -459,13 +502,361 @@ public class ProjectionPanelPerspective extends JPanel
 				}
 			}
 		}
+	}
+	public void flatShadingSingle(Point p, int[] colorList, Graphics g)
+	{
+		int color = MainPanel.int2RGB(
+				(MainPanel.getRed(colorList[0]) + MainPanel.getRed(colorList[1]) 
+				+ MainPanel.getRed(colorList[2]))/3, 
+				(MainPanel.getGreen(colorList[0]) + MainPanel.getGreen(colorList[1]) 
+				+ MainPanel.getGreen(colorList[2]))/3, 
+				(MainPanel.getBlue(colorList[0]) + MainPanel.getBlue(colorList[1]) 
+				+ MainPanel.getBlue(colorList[2]))/3);
+		g.setColor(new Color(color));
+		g.drawLine((int)p.getX(), (int)p.getY(), (int)p.getX(), (int)p.getY());
+	}
+	public int flatShadingColor(Point p, int[] colorList)
+	{
+		int color = MainPanel.int2RGB(
+				(MainPanel.getRed(colorList[0]) + MainPanel.getRed(colorList[1]) 
+				+ MainPanel.getRed(colorList[2]))/3, 
+				(MainPanel.getGreen(colorList[0]) + MainPanel.getGreen(colorList[1]) 
+				+ MainPanel.getGreen(colorList[2]))/3, 
+				(MainPanel.getBlue(colorList[0]) + MainPanel.getBlue(colorList[1]) 
+				+ MainPanel.getBlue(colorList[2]))/3);
+		return color;
+	}
+	public void gourandShadingTriangle(Point[] pointAr, int[] colorAr, Graphics g)
+	{
+		Point v1;
+		Point v2;
+		Point v3;
+		Point v4;
+		int c1;
+		int c2;
+		int c3;
+		int c4;
 		
+		if(pointAr[0].getY() < pointAr[1].getY() && pointAr[0].getY() < pointAr[2].getY())
+		{
+			v1 = pointAr[0];
+			c1 = colorAr[0];
+			if(pointAr[1].getY() > pointAr[2].getY())
+			{
+				v4 = pointAr[1];
+				c4 = colorAr[1];
+				v2 = pointAr[2];
+				c2 = colorAr[2];
+			}
+			else
+			{
+				v4 = pointAr[2];
+				c4 = colorAr[2];
+				v2 = pointAr[1];
+				c2 = colorAr[1];
+			}
+		}
+		else if(pointAr[1].getY() < pointAr[0].getY() && pointAr[1].getY() < pointAr[2].getY())
+		{
+			v1 = pointAr[1];
+			c1 = colorAr[1];
+			if(pointAr[0].getY() > pointAr[2].getY())
+			{
+				v4 = pointAr[0];
+				c4 = colorAr[0];
+				v2 = pointAr[2];
+				c2 = colorAr[2];
+			}
+			else
+			{
+				v4 = pointAr[2];
+				c4 = colorAr[2];
+				v2 = pointAr[0];
+				c2 = colorAr[0];
+			}
+		}
+		else //if(pointAr[2].getY() < pointAr[1].getY() && pointAr[2].getY() < pointAr[0].getY())
+		{
+			v1 = pointAr[2];
+			c1 = colorAr[2];
+			if(pointAr[1].getY() > pointAr[2].getY())
+			{
+				v4 = pointAr[1];
+				c4 = colorAr[1];
+				v2 = pointAr[2];
+				c2 = colorAr[2];
+			}
+			else
+			{
+				v4 = pointAr[2];
+				c4 = colorAr[2];
+				v2 = pointAr[1];
+				c2 = colorAr[1];
+			}
+		}
+		
+		int y = (int)v2.getY();
+		double beta = (y - v1.getY())/(v4.getY()-v1.getY());
+		int x = (int) (beta*v1.getX() + (1 - beta)*v4.getX());
+		
+		c3 = (int) (beta*c1 + (1 - beta)*c4);
+		v3 = new Point(x, y);
+		
+		
+		gourandShadingSpecialTriangle(new Point[]{v1, v2, v3}, new int[]{c1,c2,c3}, g);
+		gourandShadingSpecialTriangle(new Point[]{v4, v3, v2}, new int[]{c4,c3,c2}, g);
+	}
+	public void gourandShadingSpecialTriangle(Point[] pointAr, int[] colorAr, Graphics g)
+	{//tylko 1 kolor/zmienna
+		Point p1 = pointAr[0];
+		Point p2;
+		Point p3;
+		int c1 = colorAr[0];
+		int c2;
+		int c3;
+		if(pointAr[1].getX() < pointAr[2].getX())
+		{
+			p2 = pointAr[1];
+			c2 = colorAr[1];
+			p3 = pointAr[2];
+			c3 = colorAr[2];
+		}
+		else
+		{
+			p2 = pointAr[2];
+			c2 = colorAr[2];
+			p3 = pointAr[1];
+			c3 = colorAr[1];
+		}
+		if(pointAr[1].getY() < p1.getY())
+		{
+			p1 = pointAr[1];
+			c1 = colorAr[1];
+			if(pointAr[0].getX() < pointAr[2].getX())
+			{
+				p2 = pointAr[0];
+				c2 = colorAr[0];
+				p3 = pointAr[2];
+				c3 = colorAr[2];
+			}
+			else
+			{
+				p2 = pointAr[2];
+				c2 = colorAr[2];
+				p3 = pointAr[0];
+				c3 = colorAr[0];
+			}
+		}
+		if(pointAr[2].getY() < p1.getY())
+		{
+			p1 = pointAr[2];
+			c1 = colorAr[2];
+			if(pointAr[1].getX() < pointAr[0].getX())
+			{
+				p2 = pointAr[1];
+				c2 = colorAr[1];
+				p3 = pointAr[0];
+				c3 = colorAr[0];
+			}
+			else
+			{
+				p2 = pointAr[0];
+				c2 = colorAr[0];
+				p3 = pointAr[1];
+				c3 = colorAr[1];
+			}
+		}
+		int yu = (int)p1.getY();
+		int yl = (int)p3.getY();
+		
+		for(int y = yu; y <= yl; y++)
+		{
+			double beta_y = (y - yu)/(yl-yu);
+			int xl = (int) (beta_y*p1.getX() + (1 - beta_y)*p2.getX());
+			int xr = (int) (beta_y*p1.getX() + (1 - beta_y)*p3.getX());
+			
+			int al = (int) (beta_y*c1 + (1 - beta_y)*c2);
+			int ar = (int) (beta_y*c1 + (1 - beta_y)*c3);
+			
+			for(int x = xl; x <= xr; x++)
+			{
+				double alfa = (x - xl)/(xr - xl);
+				int c = (int) (alfa*al + (1 - alfa)*ar);
+				g.setColor(new Color(c));
+			}
+		}
+		
+	}
+	public int gourandShadingColor(Point p, Point[] pointAr, int[] colorAr)
+	{
+		Point v1;
+		Point v2;
+		Point v3;
+		Point v4;
+		int c1;
+		int c2;
+		int c3;
+		int c4;
+		
+		if(pointAr[0].getY() < pointAr[1].getY() && pointAr[0].getY() < pointAr[2].getY())
+		{
+			v1 = pointAr[0];
+			c1 = colorAr[0];
+			if(pointAr[1].getY() > pointAr[2].getY())
+			{
+				v4 = pointAr[1];
+				c4 = colorAr[1];
+				v2 = pointAr[2];
+				c2 = colorAr[2];
+			}
+			else
+			{
+				v4 = pointAr[2];
+				c4 = colorAr[2];
+				v2 = pointAr[1];
+				c2 = colorAr[1];
+			}
+		}
+		else if(pointAr[1].getY() < pointAr[0].getY() && pointAr[1].getY() < pointAr[2].getY())
+		{
+			v1 = pointAr[1];
+			c1 = colorAr[1];
+			if(pointAr[0].getY() > pointAr[2].getY())
+			{
+				v4 = pointAr[0];
+				c4 = colorAr[0];
+				v2 = pointAr[2];
+				c2 = colorAr[2];
+			}
+			else
+			{
+				v4 = pointAr[2];
+				c4 = colorAr[2];
+				v2 = pointAr[0];
+				c2 = colorAr[0];
+			}
+		}
+		else //if(pointAr[2].getY() < pointAr[1].getY() && pointAr[2].getY() < pointAr[0].getY())
+		{
+			v1 = pointAr[2];
+			c1 = colorAr[2];
+			if(pointAr[1].getY() > pointAr[2].getY())
+			{
+				v4 = pointAr[1];
+				c4 = colorAr[1];
+				v2 = pointAr[2];
+				c2 = colorAr[2];
+			}
+			else
+			{
+				v4 = pointAr[2];
+				c4 = colorAr[2];
+				v2 = pointAr[1];
+				c2 = colorAr[1];
+			}
+		}
+		
+		int y = (int)v2.getY();
+		double beta = (y - v1.getY())/(v4.getY()-v1.getY());
+		int x = (int) (beta*v1.getX() + (1 - beta)*v4.getX());
+		
+		c3 = (int) (beta*c1 + (1 - beta)*c4);
+		v3 = new Point(x, y);
+		
+		if(p.getY() < v3.getY())
+		{
+			return gourandShadingColorSpecialTriangle(p, new Point[]{v1, v2, v3}, new int[]{c1,c2,c3});
+		}
+		else
+		{
+			return gourandShadingColorSpecialTriangle(p, new Point[]{v4, v3, v2}, new int[]{c4,c3,c2});
+		}
+	}
+	public int gourandShadingColorSpecialTriangle(Point p, Point[] pointAr, int[] colorAr)
+	{
+		Point p1 = pointAr[0];
+		Point p2;
+		Point p3;
+		int c1 = colorAr[0];
+		int c2;
+		int c3;
+		
+		int c;
+		int x = (int) p.getX();
+		int y = (int) p.getY();
+		
+		if(pointAr[1].getX() < pointAr[2].getX())
+		{
+			p2 = pointAr[1];
+			c2 = colorAr[1];
+			p3 = pointAr[2];
+			c3 = colorAr[2];
+		}
+		else
+		{
+			p2 = pointAr[2];
+			c2 = colorAr[2];
+			p3 = pointAr[1];
+			c3 = colorAr[1];
+		}
+		if(pointAr[1].getY() < p1.getY())
+		{
+			p1 = pointAr[1];
+			c1 = colorAr[1];
+			if(pointAr[0].getX() < pointAr[2].getX())
+			{
+				p2 = pointAr[0];
+				c2 = colorAr[0];
+				p3 = pointAr[2];
+				c3 = colorAr[2];
+			}
+			else
+			{
+				p2 = pointAr[2];
+				c2 = colorAr[2];
+				p3 = pointAr[0];
+				c3 = colorAr[0];
+			}
+		}
+		if(pointAr[2].getY() < p1.getY())
+		{
+			p1 = pointAr[2];
+			c1 = colorAr[2];
+			if(pointAr[1].getX() < pointAr[0].getX())
+			{
+				p2 = pointAr[1];
+				c2 = colorAr[1];
+				p3 = pointAr[0];
+				c3 = colorAr[0];
+			}
+			else
+			{
+				p2 = pointAr[0];
+				c2 = colorAr[0];
+				p3 = pointAr[1];
+				c3 = colorAr[1];
+			}
+		}
+		int yu = (int)p1.getY();
+		int yl = (int)p3.getY();
+		
+		double beta_y = (y - yu)/(yl-yu);
+		int xl = (int) (beta_y*p1.getX() + (1 - beta_y)*p2.getX());
+		int xr = (int) (beta_y*p1.getX() + (1 - beta_y)*p3.getX());
+		
+		int al = (int) (beta_y*c1 + (1 - beta_y)*c2);
+		int ar = (int) (beta_y*c1 + (1 - beta_y)*c3);
+		
+		
+		double alfa = (x - xl)/(xr - xl);
+		c = (int) (alfa*al + (1 - alfa)*ar);
+		
+		return c;
 	}
 	float sign (Point p1, Point p2, Point p3)
 	{
 	    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 	}
-
 	boolean PointInTriangle (Point pt, Point v1, Point v2, Point v3)
 	{
 	    boolean b1, b2, b3;

@@ -29,20 +29,20 @@ public class MainPanel extends JPanel
     	
     	obs = new int[4];
 		obs[0] = -500;
-		obs[1] = 500;
+		obs[1] = -500;
 		obs[2] = 500;
 		obs[3] = 1;
 		
 		imageCenter = new int[4];
 		imageCenter[0] = -50;
-		imageCenter[1] = 50;
+		imageCenter[1] = -50;
 		imageCenter[2] = 50;
 		imageCenter[3] = 1;
 		
 		light = new int[4];
-		light[0] = -500;
+		light[0] = 500;
 		light[1] = 500;
-		light[2] = -500;
+		light[2] = 500;
 		light[3] = 1;
     	
     	panel1 = new ProjectionPanelPerspective(this);
@@ -65,7 +65,7 @@ public class MainPanel extends JPanel
 		
     	try 
 		{
-			formFile = readFile("res/cone.txt");
+			formFile = readFile("res/suzanne2.txt");
 		} 
 		catch (IOException e) 
 		{
@@ -199,23 +199,23 @@ public class MainPanel extends JPanel
     	double Sg = 0;
     	double Sb = 0;
     	
-    	double g = 5;
+    	double g = 1;
     	
     	double kdr = 0.5;
     	double kdg = 0.5;
     	double kdb = 0.5;
     	
-    	double ksr = 0.7;
-    	double ksg = 0.7;
-    	double ksb = 0.7;
+    	double ksr = 0.5;
+    	double ksg = 0.5;
+    	double ksb = 0.5;
     	
     	double kar = 0.3;
     	double kag = 0.3;
     	double kab = 0.3;
     	
-    	double Er = 200;
-    	double Eg = 200;
-    	double Eb = 200;
+    	double Er = 100;
+    	double Eg = 20;
+    	double Eb = 20;
     	
     	double Ar = 200;
     	double Ag = 50;

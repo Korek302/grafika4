@@ -243,8 +243,7 @@ public class MainPanel extends JPanel
     				Math.pow(vectorDotProd(v.getVl(), new Vector(-v.getVo().getX(), v.getVo().getY(), -v.getVo().getZ())), g) 
     				+ kab * Ab;
     		
-    		System.out.println("Lr: " + Lr + "Lg: " + Lg + "Lb: " + Lb + "      " + lightAttenuation(distToL));
-    		//System.out.println(vectorDotProd(v.getVn(), v.getVl()) );
+    		//System.out.println("Lr: " + Lr + "Lg: " + Lg + "Lb: " + Lb + "      " + lightAttenuation(distToL));
     		v.setColor(int2RGB((int)(Lr), (int)(Lg), (int)(Lb)));
     	}
     }

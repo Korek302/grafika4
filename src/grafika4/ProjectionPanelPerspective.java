@@ -115,8 +115,29 @@ public class ProjectionPanelPerspective extends JPanel
 		    			if(zbuffer[j][k] > z)
 		    			{
 		    				zbuffer[j][k] = z;
-		    				cbuffer[j][k] = flatShadingColor(new Point(j, k), 
-		    						new int[]{t.getV1().getColor(), t.getV2().getColor(), t.getV3().getColor()});
+		    				/*cbuffer[j][k] = 
+		    						gourandShadingColor(new Point(j,k), targetPointArray, 
+		    								new int[]{t.getV1().getColor(), 
+		    										t.getV2().getColor(), 
+		    										t.getV3().getColor()});*/
+		    				
+		    				cbuffer[j][k] = MainPanel.int2RGB(
+		    						gourandShadingColor(new Point(j,k), targetPointArray, 
+		    								new int[]{MainPanel.getRed(t.getV1().getColor()), 
+		    										MainPanel.getRed(t.getV2().getColor()), 
+		    										MainPanel.getRed(t.getV3().getColor())}), 
+		    						gourandShadingColor(new Point(j,k), targetPointArray, 
+		    								new int[]{MainPanel.getGreen(t.getV1().getColor()), 
+		    										MainPanel.getGreen(t.getV2().getColor()), 
+		    										MainPanel.getGreen(t.getV3().getColor())}), 
+		    						gourandShadingColor(new Point(j,k), targetPointArray, 
+		    								new int[]{MainPanel.getBlue(t.getV1().getColor()), 
+		    										MainPanel.getBlue(t.getV2().getColor()), 
+		    										MainPanel.getBlue(t.getV3().getColor())}));
+		    				
+		    				/*cbuffer[j][k] = flatShadingColor(new Point(j,k), new int[]{t.getV1().getColor(), 
+		    						t.getV2().getColor(), 
+		    						t.getV3().getColor()});*/
 		    			}
     				}
     			}
@@ -129,39 +150,7 @@ public class ProjectionPanelPerspective extends JPanel
     				g.drawLine(j, k, j, k);
     			}
     		}
-    		
-    		
-    		/*flatShading(targetPointArray, 
-    				new int[]{t.getV1().getColor(), t.getV2().getColor(), t.getV3().getColor()},  g);*/
-    		
-    		/*int[] arr1 = {(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
-    				(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY()};
-    		int[] arr2 = {(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY(), 
-    				(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY()};
-    		int[] arr3 = {(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY(), 
-    				(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY()};
-    		
-    		if(!checker.contains(arr1))
-    		{
-    			g.drawLine((int)targetPointArray[0].getX(), (int)targetPointArray[0].getY(), 
-    					(int)targetPointArray[1].getX(), (int)targetPointArray[1].getY());
-    			checker.add(arr1);
-    		}
-    		if(!checker.contains(arr2))
-    		{
-	    		g.drawLine((int)targetPointArray[1].getX(), (int)targetPointArray[1].getY(), 
-	    				(int)targetPointArray[2].getX(), (int)targetPointArray[2].getY());
-	    		checker.add(arr2);
-    		}
-    		if(!checker.contains(arr3))
-    		{
-	    		g.drawLine((int)targetPointArray[2].getX(), (int)targetPointArray[2].getY(), 
-	    				(int)targetPointArray[0].getX(), (int)targetPointArray[0].getY());
-	    		checker.add(arr3);
-    		}*/
-    		
     	}
-    	//checker.clear();
     }
 	
 	public int[] resize(int sx, int sy, int sz, int[] point)
@@ -482,6 +471,7 @@ public class ProjectionPanelPerspective extends JPanel
 		}
 		return out;
 	}
+	
 	public void flatShading(Point[] pList, int[] colorList, Graphics g)
 	{
 		int color = MainPanel.int2RGB(
@@ -503,6 +493,7 @@ public class ProjectionPanelPerspective extends JPanel
 			}
 		}
 	}
+	
 	public void flatShadingSingle(Point p, int[] colorList, Graphics g)
 	{
 		int color = MainPanel.int2RGB(
@@ -515,6 +506,7 @@ public class ProjectionPanelPerspective extends JPanel
 		g.setColor(new Color(color));
 		g.drawLine((int)p.getX(), (int)p.getY(), (int)p.getX(), (int)p.getY());
 	}
+	
 	public int flatShadingColor(Point p, int[] colorList)
 	{
 		int color = MainPanel.int2RGB(
@@ -526,6 +518,7 @@ public class ProjectionPanelPerspective extends JPanel
 				+ MainPanel.getBlue(colorList[2]))/3);
 		return color;
 	}
+	
 	public void gourandShadingTriangle(Point[] pointAr, int[] colorAr, Graphics g)
 	{
 		Point v1;
@@ -606,6 +599,7 @@ public class ProjectionPanelPerspective extends JPanel
 		gourandShadingSpecialTriangle(new Point[]{v1, v2, v3}, new int[]{c1,c2,c3}, g);
 		gourandShadingSpecialTriangle(new Point[]{v4, v3, v2}, new int[]{c4,c3,c2}, g);
 	}
+	
 	public void gourandShadingSpecialTriangle(Point[] pointAr, int[] colorAr, Graphics g)
 	{//tylko 1 kolor/zmienna
 		Point p1 = pointAr[0];
@@ -687,6 +681,7 @@ public class ProjectionPanelPerspective extends JPanel
 		}
 		
 	}
+	
 	public int gourandShadingColor(Point p, Point[] pointAr, int[] colorAr)
 	{
 		Point v1;
@@ -757,7 +752,16 @@ public class ProjectionPanelPerspective extends JPanel
 		}
 		
 		int y = (int)v2.getY();
-		double beta = (y - v1.getY())/(v4.getY()-v1.getY());
+		double beta;
+		if(v4.getY()-v1.getY() == 0)
+		{
+			beta = (y - v1.getY())/0.0001;
+		}
+		else
+		{
+			beta = (y - v1.getY())/(v4.getY()-v1.getY());
+		}
+		
 		int x = (int) (beta*v1.getX() + (1 - beta)*v4.getX());
 		
 		c3 = (int) (beta*c1 + (1 - beta)*c4);
@@ -772,6 +776,7 @@ public class ProjectionPanelPerspective extends JPanel
 			return gourandShadingColorSpecialTriangle(p, new Point[]{v4, v3, v2}, new int[]{c4,c3,c2});
 		}
 	}
+	
 	public int gourandShadingColorSpecialTriangle(Point p, Point[] pointAr, int[] colorAr)
 	{
 		Point p1 = pointAr[0];
@@ -840,7 +845,16 @@ public class ProjectionPanelPerspective extends JPanel
 		int yu = (int)p1.getY();
 		int yl = (int)p3.getY();
 		
-		double beta_y = (y - yu)/(yl-yu);
+		double beta_y;
+		if((yl-yu) == 0)
+		{
+			beta_y = (y - yu)/0.0001;
+		}
+		else
+		{
+			beta_y = (y - yu)/(yl-yu);
+		}
+		
 		int xl = (int) (beta_y*p1.getX() + (1 - beta_y)*p2.getX());
 		int xr = (int) (beta_y*p1.getX() + (1 - beta_y)*p3.getX());
 		
@@ -848,15 +862,25 @@ public class ProjectionPanelPerspective extends JPanel
 		int ar = (int) (beta_y*c1 + (1 - beta_y)*c3);
 		
 		
-		double alfa = (x - xl)/(xr - xl);
+		double alfa;
+		if((xr - xl) == 0)
+		{
+			alfa = (x - xl)/0.0001;
+		}
+		else
+		{
+			alfa = (x - xl)/(xr - xl);
+		}
 		c = (int) (alfa*al + (1 - alfa)*ar);
 		
 		return c;
 	}
+	
 	float sign (Point p1, Point p2, Point p3)
 	{
 	    return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
 	}
+	
 	boolean PointInTriangle (Point pt, Point v1, Point v2, Point v3)
 	{
 	    boolean b1, b2, b3;

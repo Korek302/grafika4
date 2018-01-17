@@ -35,7 +35,6 @@ public class ProjectionPanelPerspective extends JPanel
 		this.imageCenter = mainPanel.imageCenter;
 		
 		Point[] targetPointArray = new Point[3];
-		//ArrayList<int[]> checker = new ArrayList<int[]>();
 		int[][] pointsAfterTrans = new int[3][3];
 		int[][] zbuffer = new int[this.getHeight()][this.getWidth()];
 		int[][] cbuffer = new int[this.getHeight()][this.getWidth()];
@@ -59,8 +58,8 @@ public class ProjectionPanelPerspective extends JPanel
 				cbuffer[j][k] = MainPanel.int2RGB(123,123,123);
 			}
 		}
-    			
-    	for(Triangle t : MainPanel.triangleList)
+		
+		for(Triangle t : MainPanel.triangleList)
     	{
     		int[][] pointList = new int[3][4];
     		pointList[0][0] = t.getV1().getX();
@@ -96,11 +95,11 @@ public class ProjectionPanelPerspective extends JPanel
     		}
     		
     		int z = 99999;
-    		for(int j = 0; j < this.getHeight(); j++)
+    		for(int iy = 0; iy < this.getHeight(); iy++)
     		{
-    			for(int k = 0; k < this.getWidth(); k++)
+    			for(int ix = 0; ix < this.getWidth(); ix++)
     			{
-    				if(PointInTriangle(new Point(j, k), targetPointArray[0], targetPointArray[1], targetPointArray[2]))
+    				if(PointInTriangle(new Point(ix,iy), targetPointArray[0], targetPointArray[1], targetPointArray[2]))
     				{
     					z = pointsAfterTrans[0][2];
     					if(pointsAfterTrans[1][2] < z)
@@ -112,30 +111,26 @@ public class ProjectionPanelPerspective extends JPanel
     						z = pointsAfterTrans[2][2];
     					}
     						
-		    			if(zbuffer[j][k] > z)
+		    			if(zbuffer[iy][ix] > z)
 		    			{
-		    				zbuffer[j][k] = z;
-		    				/*cbuffer[j][k] = 
-		    						gourandShadingColor(new Point(j,k), targetPointArray, 
-		    								new int[]{t.getV1().getColor(), 
-		    										t.getV2().getColor(), 
-		    										t.getV3().getColor()});*/
+		    				linesGoAway(targetPointArray);
 		    				
-		    				cbuffer[j][k] = MainPanel.int2RGB(
-		    						gourandShadingColor(new Point(j,k), targetPointArray, 
+		    				zbuffer[iy][ix] = z;
+		    				cbuffer[iy][ix] = MainPanel.int2RGB(
+		    						gourandShading(new Point(ix,iy), targetPointArray, 
 		    								new int[]{MainPanel.getRed(t.getV1().getColor()), 
 		    										MainPanel.getRed(t.getV2().getColor()), 
 		    										MainPanel.getRed(t.getV3().getColor())}), 
-		    						gourandShadingColor(new Point(j,k), targetPointArray, 
+		    						gourandShading(new Point(ix,iy), targetPointArray, 
 		    								new int[]{MainPanel.getGreen(t.getV1().getColor()), 
 		    										MainPanel.getGreen(t.getV2().getColor()), 
 		    										MainPanel.getGreen(t.getV3().getColor())}), 
-		    						gourandShadingColor(new Point(j,k), targetPointArray, 
+		    						gourandShading(new Point(ix,iy), targetPointArray, 
 		    								new int[]{MainPanel.getBlue(t.getV1().getColor()), 
 		    										MainPanel.getBlue(t.getV2().getColor()), 
 		    										MainPanel.getBlue(t.getV3().getColor())}));
 		    				
-		    				/*cbuffer[j][k] = flatShadingColor(new Point(j,k), new int[]{t.getV1().getColor(), 
+		    				/*cbuffer[iy][ix] = flatShadingColor(new Point(ix,iy), new int[]{t.getV1().getColor(), 
 		    						t.getV2().getColor(), 
 		    						t.getV3().getColor()});*/
 		    			}
@@ -147,10 +142,75 @@ public class ProjectionPanelPerspective extends JPanel
     			for(int k = 0; k < this.getWidth(); k++)
     			{
     				g.setColor(new Color(cbuffer[j][k]));
-    				g.drawLine(j, k, j, k);
+    				g.drawLine(k, j, k, j);
     			}
     		}
     	}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+    			
+		/*Triangle t_test = new Triangle(
+				new Vertex(0, 0, 0, MainPanel.int2RGB(0, 0, 255)),
+				new Vertex(0, 0, 0, MainPanel.int2RGB(255, 0, 0)), 
+				new Vertex(0, 0, 0, MainPanel.int2RGB(0, 255, 0)));
+		Point[] targetPointArray = new Point[]{
+				new Point(50, 50), 
+				new Point(100,100), 
+				new Point(200,200)};
+		for(int iy = 0; iy < this.getHeight(); iy++)
+		{
+			for(int ix = 0; ix < this.getWidth(); ix++)
+			{
+				linesGoAway(targetPointArray);
+				
+				if(PointInTriangle(new Point(ix,iy), targetPointArray[0], targetPointArray[1], targetPointArray[2]))
+				{
+    				cbuffer[iy][ix] = MainPanel.int2RGB(
+						gourandShadingSimple(new Point(ix,iy), targetPointArray, 
+								new int[]{MainPanel.getRed(t_test.getV1().getColor()), 
+										MainPanel.getRed(t_test.getV2().getColor()), 
+										MainPanel.getRed(t_test.getV3().getColor())}), 
+						gourandShadingSimple(new Point(ix,iy), targetPointArray, 
+								new int[]{MainPanel.getGreen(t_test.getV1().getColor()), 
+										MainPanel.getGreen(t_test.getV2().getColor()), 
+										MainPanel.getGreen(t_test.getV3().getColor())}), 
+						gourandShadingSimple(new Point(ix,iy), targetPointArray, 
+								new int[]{MainPanel.getBlue(t_test.getV1().getColor()), 
+										MainPanel.getBlue(t_test.getV2().getColor()), 
+										MainPanel.getBlue(t_test.getV3().getColor())}));
+				}
+			}
+		}
+		
+		
+		for(int j = 0; j < this.getHeight(); j++)
+		{
+			for(int k = 0; k < this.getWidth(); k++)
+			{
+				g.setColor(new Color(cbuffer[j][k]));
+				g.drawLine(k, j, k, j);
+			}
+		}*/
+		
+    	
+    	
     }
 	
 	public int[] resize(int sx, int sy, int sz, int[] point)
@@ -735,17 +795,17 @@ public class ProjectionPanelPerspective extends JPanel
 		{
 			v1 = pointAr[2];
 			c1 = colorAr[2];
-			if(pointAr[1].getY() > pointAr[2].getY())
+			if(pointAr[1].getY() > pointAr[0].getY())
 			{
 				v4 = pointAr[1];
 				c4 = colorAr[1];
-				v2 = pointAr[2];
-				c2 = colorAr[2];
+				v2 = pointAr[0];
+				c2 = colorAr[0];
 			}
 			else
 			{
-				v4 = pointAr[2];
-				c4 = colorAr[2];
+				v4 = pointAr[0];
+				c4 = colorAr[0];
 				v2 = pointAr[1];
 				c2 = colorAr[1];
 			}
@@ -769,79 +829,27 @@ public class ProjectionPanelPerspective extends JPanel
 		
 		if(p.getY() < v3.getY())
 		{
-			return gourandShadingColorSpecialTriangle(p, new Point[]{v1, v2, v3}, new int[]{c1,c2,c3});
+			return gourandShadingColorSpecialTriangle(p, new Point[]{v1, v3, v2}, new int[]{c1,c3,c2});
 		}
 		else
 		{
-			return gourandShadingColorSpecialTriangle(p, new Point[]{v4, v3, v2}, new int[]{c4,c3,c2});
+			return gourandShadingColorSpecialTriangle(p, new Point[]{v4, v2, v3}, new int[]{c4,c2,c3});
 		}
 	}
 	
 	public int gourandShadingColorSpecialTriangle(Point p, Point[] pointAr, int[] colorAr)
 	{
 		Point p1 = pointAr[0];
-		Point p2;
-		Point p3;
+		Point p2 = pointAr[1];
+		Point p3 = pointAr[2];
 		int c1 = colorAr[0];
-		int c2;
-		int c3;
+		int c2 = colorAr[1];
+		int c3 = colorAr[2];
 		
 		int c;
 		int x = (int) p.getX();
 		int y = (int) p.getY();
 		
-		if(pointAr[1].getX() < pointAr[2].getX())
-		{
-			p2 = pointAr[1];
-			c2 = colorAr[1];
-			p3 = pointAr[2];
-			c3 = colorAr[2];
-		}
-		else
-		{
-			p2 = pointAr[2];
-			c2 = colorAr[2];
-			p3 = pointAr[1];
-			c3 = colorAr[1];
-		}
-		if(pointAr[1].getY() < p1.getY())
-		{
-			p1 = pointAr[1];
-			c1 = colorAr[1];
-			if(pointAr[0].getX() < pointAr[2].getX())
-			{
-				p2 = pointAr[0];
-				c2 = colorAr[0];
-				p3 = pointAr[2];
-				c3 = colorAr[2];
-			}
-			else
-			{
-				p2 = pointAr[2];
-				c2 = colorAr[2];
-				p3 = pointAr[0];
-				c3 = colorAr[0];
-			}
-		}
-		if(pointAr[2].getY() < p1.getY())
-		{
-			p1 = pointAr[2];
-			c1 = colorAr[2];
-			if(pointAr[1].getX() < pointAr[0].getX())
-			{
-				p2 = pointAr[1];
-				c2 = colorAr[1];
-				p3 = pointAr[0];
-				c3 = colorAr[0];
-			}
-			else
-			{
-				p2 = pointAr[0];
-				c2 = colorAr[0];
-				p3 = pointAr[1];
-				c3 = colorAr[1];
-			}
-		}
 		int yu = (int)p1.getY();
 		int yl = (int)p3.getY();
 		
@@ -872,8 +880,131 @@ public class ProjectionPanelPerspective extends JPanel
 			alfa = (x - xl)/(xr - xl);
 		}
 		c = (int) (alfa*al + (1 - alfa)*ar);
-		
+
 		return c;
+	}
+	
+	public int gourandShading(Point p, Point[] pointAr, int[] colorAr)
+	{
+		Point p1 = new Point(0,0);
+		Point p2 = new Point(0,0);
+		Point p3 = new Point(0,0);
+		int c1 = 0;
+		int c2 = 0;
+		int c3 = 0;
+		
+		if(pointAr[0].getY() == pointAr[1].getY())
+		{
+			p1 = pointAr[2];
+			p2 = pointAr[1];
+			p3 = pointAr[0];
+			return gourandShadingSimple(p, new Point[]{p1, p2, p3}, new int[]{c1,c2,c3});
+		}
+		else if(pointAr[0].getY() == pointAr[2].getY())
+		{
+			p1 = pointAr[1];
+			p2 = pointAr[2];
+			p3 = pointAr[0];
+			return gourandShadingSimple(p, new Point[]{p1, p2, p3}, new int[]{c1,c2,c3});
+		}
+		else if(pointAr[2].getY() == pointAr[1].getY())
+		{
+			p1 = pointAr[0];
+			p2 = pointAr[1];
+			p3 = pointAr[2];
+			return gourandShadingSimple(p, new Point[]{p1, p2, p3}, new int[]{c1,c2,c3});
+		}
+		else
+		{
+			if(pointAr[0].getY() < pointAr[1].getY() && pointAr[0].getY() < pointAr[2].getY())
+			{
+				p1 = pointAr[0];
+				c1 = colorAr[0];
+				if(pointAr[1].getY() < pointAr[2].getY())
+				{
+					p2 = pointAr[1];
+					c2 = colorAr[1];
+					p3 = pointAr[2];
+					c3 = colorAr[2];
+				}
+				else
+				{
+					p2 = pointAr[2];
+					c2 = colorAr[2];
+					p3 = pointAr[1];
+					c3 = colorAr[1];
+				}
+			}
+			
+			if(pointAr[1].getY() < pointAr[0].getY() && pointAr[1].getY() < pointAr[2].getY())
+			{
+				p1 = pointAr[1];
+				c1 = colorAr[1];
+				if(pointAr[2].getY() < pointAr[0].getY())
+				{
+					p2 = pointAr[2];
+					c2 = colorAr[2];
+					p3 = pointAr[0];
+					c3 = colorAr[0];
+				}
+				else
+				{
+					p2 = pointAr[0];
+					c2 = colorAr[0];
+					p3 = pointAr[2];
+					c3 = colorAr[2];
+				}
+			}
+			
+			if(pointAr[2].getY() < pointAr[0].getY() && pointAr[2].getY() < pointAr[1].getY())
+			{
+				p1 = pointAr[2];
+				c1 = colorAr[2];
+				if(pointAr[1].getY() < pointAr[0].getY())
+				{
+					p2 = pointAr[1];
+					c2 = colorAr[1];
+					p3 = pointAr[0];
+					c3 = colorAr[0];
+				}
+				else
+				{
+					p2 = pointAr[0];
+					c2 = colorAr[0];
+					p3 = pointAr[1];
+					c3 = colorAr[1];
+				}
+			}
+			
+			int y = (int) p2.getY();
+			int x = (int) (p1.getX() - (p1.getX() - p3.getX()) * (p1.getY() - y)/(p1.getY() - p3.getY()));
+			int c4 = (int) (c1 - (c1 - c3) * (p1.getY() - y)/(p1.getY() - p3.getY()));
+			
+			Point p4 = new Point(x,y);
+	
+			if(p.getY() > p4.getY())
+			{
+				return gourandShadingSimple(p, new Point[]{p1, p2, p4}, new int[]{c1,c2,c4});
+			}
+			else
+			{
+				return gourandShadingSimple(p, new Point[]{p3, p4, p2}, new int[]{c3,c4,c2});
+			}
+		}
+	}
+	
+	public int gourandShadingSimple(Point p, Point[] pointAr, int[] colorAr)
+	{
+		int c1 = colorAr[0];
+		int c2 = colorAr[1];
+		int c3 = colorAr[2];
+		
+		double ca = (c1 - (c1-c2) * (pointAr[0].getY() - p.getY())/(pointAr[0].getY() - pointAr[1].getY()));
+		double cb = (c1 - (c1-c3) * (pointAr[0].getY() - p.getY())/(pointAr[0].getY() - pointAr[2].getY()));
+		
+		double xa = (pointAr[0].getX() - (pointAr[0].getX()-pointAr[1].getX()) * (pointAr[0].getY() - p.getY())/(pointAr[0].getY() - pointAr[1].getY()));
+		double xb = (pointAr[0].getX() - (pointAr[0].getX()-pointAr[2].getX()) * (pointAr[0].getY() - p.getY())/(pointAr[0].getY() - pointAr[2].getY()));
+		return (int) (cb - (cb-ca) * (xb - p.getX())/(xb-xa));
 	}
 	
 	float sign (Point p1, Point p2, Point p3)
@@ -885,10 +1016,52 @@ public class ProjectionPanelPerspective extends JPanel
 	{
 	    boolean b1, b2, b3;
 
-	    b1 = sign(pt, v1, v2) < 0.0f;
-	    b2 = sign(pt, v2, v3) < 0.0f;
-	    b3 = sign(pt, v3, v1) < 0.0f;
+	    b1 = sign(pt, v1, v2) < 0;
+	    b2 = sign(pt, v2, v3) < 0;
+	    b3 = sign(pt, v3, v1) < 0;
 
 	    return ((b1 == b2) && (b2 == b3));
+	}
+	
+	void linesGoAway(Point[] targetPointArray)
+	{
+		if(targetPointArray[0].getX() == targetPointArray[1].getX())
+		{
+			targetPointArray[0].setLocation(new Point((int)targetPointArray[0].getX() + 1, (int)targetPointArray[0].getY()));
+		}
+		if(targetPointArray[0].getX() == targetPointArray[2].getX())
+		{
+			targetPointArray[0].setLocation(new Point((int)targetPointArray[0].getX() + 1, (int)targetPointArray[0].getY()));
+		}
+		if(targetPointArray[2].getX() == targetPointArray[1].getX())
+		{
+			targetPointArray[1].setLocation(new Point((int)targetPointArray[1].getX() + 1, (int)targetPointArray[1].getY()));
+		}
+		
+		if(targetPointArray[0].getY() == targetPointArray[1].getY())
+		{
+			targetPointArray[0].setLocation(new Point((int)targetPointArray[0].getX(), (int)targetPointArray[0].getY() + 1));
+		}
+		if(targetPointArray[0].getY() == targetPointArray[2].getY())
+		{
+			targetPointArray[0].setLocation(new Point((int)targetPointArray[0].getX(), (int)targetPointArray[0].getY() + 1));
+		}
+		if(targetPointArray[2].getY() == targetPointArray[1].getY())
+		{
+			targetPointArray[1].setLocation(new Point((int)targetPointArray[1].getX(), (int)targetPointArray[1].getY() + 1));
+		}
+		
+		if(areColinear(targetPointArray[0], targetPointArray[1], targetPointArray[2]))
+		{
+			targetPointArray[1].setLocation(new Point((int)targetPointArray[1].getX() + 1, (int)targetPointArray[1].getY()));
+		}
+	}
+	
+	boolean areColinear(Point p1, Point p2, Point p3)
+	{
+		double result1 = (p2.getY() - p1.getY())/(p2.getX() - p1.getX());
+		double result2 = (p3.getY() - p2.getY())/(p3.getX() - p2.getX());
+		
+		return result1 == result2;
 	}
 }

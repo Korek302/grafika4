@@ -34,6 +34,17 @@ public class Vertex
 		color = MainPanel.int2RGB(0, 0, 0);
 	}
 	
+	public Vertex(int newX, int newY, int newZ, int newColor)
+	{
+		x = newX;
+		y = newY;
+		z = newZ;
+		vn = new Vector();
+		vl = new Vector();
+		vo = new Vector();
+		color = newColor;
+	}
+	
 	public Vertex(int newX, int newY, int newZ, Vector newVn, Vector newVl, Vector newVo)
 	{
 		x = newX;

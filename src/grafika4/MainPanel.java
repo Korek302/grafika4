@@ -1,13 +1,18 @@
 package grafika4;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 @SuppressWarnings("serial")
-public class MainPanel extends JPanel
+public class MainPanel extends JPanel implements ActionListener
 {
 	ProjectionPanelPerspective panel1;
 	ProjectionPanelXZ panel2;
@@ -19,24 +24,39 @@ public class MainPanel extends JPanel
 	static ArrayList<Integer> vertexIndicesList;
 	static ArrayList<Double> vnList;
 	
+	static int shading;
+	
 	int[] obs;
 	int[] imageCenter;
 	int[] light;
+	
+	JButton flatShadingButton;
+	JButton gouraudShadingButton;
+	JButton cameraChangeButton;
+	JButton lightChangeButton;
+	
+	JTextField xCameraTF;
+	JTextField yCameraTF;
+	JTextField zCameraTF;
+	
+	JTextField xLightTF;
+	JTextField yLightTF;
+	JTextField zLightTF;
 	
     public MainPanel() 
     {
     	setLayout(null);
     	
-    	obs = new int[4];
+    	obs = new int[4];//--+ dla suzanne2
 		obs[0] = -500;
-		obs[1] = -500;
-		obs[2] = 500;
+		obs[1] = 500;
+		obs[2] = -500;
 		obs[3] = 1;
 		
 		imageCenter = new int[4];
 		imageCenter[0] = -50;
-		imageCenter[1] = -50;
-		imageCenter[2] = 50;
+		imageCenter[1] = 50;
+		imageCenter[2] = -50;
 		imageCenter[3] = 1;
 		
 		light = new int[4];
@@ -44,6 +64,8 @@ public class MainPanel extends JPanel
 		light[1] = 500;
 		light[2] = 500;
 		light[3] = 1;
+		
+		shading = 0;
     	
     	panel1 = new ProjectionPanelPerspective(this);
     	panel2 = new ProjectionPanelXZ(this);
@@ -54,6 +76,34 @@ public class MainPanel extends JPanel
     	panel2.setBounds(500, 0, 490, 340);
     	panel3.setBounds(0, 350, 490, 340);
     	panel4.setBounds(500, 350, 490, 340);
+    	
+    	flatShadingButton = new JButton("Flat");
+    	gouraudShadingButton = new JButton("Gouraud");
+    	
+    	flatShadingButton.setBounds(1000, 60, 120, 50);
+    	gouraudShadingButton.setBounds(1000, 10, 120, 50);
+    	
+    	xCameraTF = new JTextField(Integer.toString(obs[0]));
+    	yCameraTF = new JTextField(Integer.toString(obs[1]));
+    	zCameraTF = new JTextField(Integer.toString(obs[2]));
+    	
+    	xCameraTF.setBounds(1000, 130, 120, 30);
+    	yCameraTF.setBounds(1000, 160, 120, 30);
+    	zCameraTF.setBounds(1000, 190, 120, 30);
+    	
+    	cameraChangeButton = new JButton("Change camera");
+    	cameraChangeButton.setBounds(1000, 225, 120, 30);
+    	
+    	xLightTF = new JTextField(Integer.toString(light[0]));
+    	yLightTF = new JTextField(Integer.toString(light[1]));
+    	zLightTF = new JTextField(Integer.toString(light[2]));
+    	
+    	xLightTF.setBounds(1000, 270, 120, 30);
+    	yLightTF.setBounds(1000, 300, 120, 30);
+    	zLightTF.setBounds(1000, 330, 120, 30);
+    	
+    	lightChangeButton = new JButton("Change light");
+    	lightChangeButton.setBounds(1000, 360, 120, 30);
 	
     	vertexList = new ArrayList<Vertex>();
     	triangleList = new ArrayList<Triangle>();
@@ -65,7 +115,7 @@ public class MainPanel extends JPanel
 		
     	try 
 		{
-			formFile = readFile("res/suzanne2.txt");
+			formFile = readFile("res/snowman2.txt");
 		} 
 		catch (IOException e) 
 		{
@@ -78,7 +128,7 @@ public class MainPanel extends JPanel
 		offset++;
 		int currOffset = offset;
 		
-		double mul = 1;
+		double mul = 0.4;
 		
 		for(; offset < 4*numberOfVertices + currOffset; offset += 4)
 		{
@@ -113,61 +163,30 @@ public class MainPanel extends JPanel
 			t.setVn(vectorProd(v1, v2));
 		}
 		
-		int j = 0;
-		for(Vertex v : vertexList)
-		{
-			//Vn - KIEPSKO kazdy przylegly trojkat traktowany tak samo (taka sama waga)
-			ArrayList<Triangle> adjTriangles = new ArrayList<Triangle>();
-			int l = 0;
-			for(int k = 0; k < vertexIndicesList.size(); k += 3)
-			{
-				if(vertexIndicesList.get(k) == j || 
-						vertexIndicesList.get(k + 1) == j ||
-						vertexIndicesList.get(k + 2) == j)
-				{
-					adjTriangles.add(triangleList.get(l));
-				}
-				l++;
-			}
-			
-			double sumOfX = 0;
-			double sumOfY = 0;
-			double sumOfZ = 0;
-			double lengthOfSum = 0;
-			
-			for(Triangle t : adjTriangles)
-			{
-				sumOfX += t.getVn().getX();
-				sumOfY += t.getVn().getY();
-				sumOfZ += t.getVn().getZ();
-			}
-			
-			lengthOfSum = dist2p(new int[]{0,0,0}, 
-					new int[]{(int)sumOfX, (int)sumOfY, (int)sumOfX});
-			
-			v.setVn(new Vector(sumOfX/lengthOfSum, sumOfY/lengthOfSum, sumOfZ/lengthOfSum));
-			
-			//Vo
-    		double distToO = dist2p(new int[]{v.getX(), v.getY(), v.getZ()}, obs);
-    		v.setVo(new Vector((obs[0]-v.getX())/distToO, 
-    				(obs[1]-v.getY())/distToO, 
-    				(obs[2]-v.getZ())/distToO));
-			
-    		//Vl
-    		double distToL = dist2p(new int[]{v.getX(), v.getY(), v.getZ()}, light);
-    		v.setVl(new Vector((light[0]-v.getX())/distToL, 
-    				(light[1]-v.getY())/distToL, 
-    				(light[2]-v.getZ())/distToL));
-			
-			j++;
-		}
-		
-		phongLightModel(vertexList);
+		initLightModel();
     	
     	add(panel1);
     	add(panel2);
     	add(panel3);
     	add(panel4);
+    	
+    	gouraudShadingButton.addActionListener(this);
+    	flatShadingButton.addActionListener(this);
+    	cameraChangeButton.addActionListener(this);
+    	lightChangeButton.addActionListener(this);
+    	
+    	add(gouraudShadingButton);
+    	add(flatShadingButton);
+    	add(cameraChangeButton);
+    	add(lightChangeButton);
+    	
+    	add(xCameraTF);
+    	add(yCameraTF);
+    	add(zCameraTF);
+    	
+    	add(xLightTF);
+    	add(yLightTF);
+    	add(zLightTF);
     }
     
     public void repaintAll()
@@ -272,6 +291,60 @@ public class MainPanel extends JPanel
     			v1.getX()*v2.getY() - v1.getY()*v2.getX());
     }
     
+    private void initLightModel()
+    {
+    	int j = 0;
+		for(Vertex v : vertexList)
+		{
+			//Vn - KIEPSKO kazdy przylegly trojkat traktowany tak samo (taka sama waga)
+			ArrayList<Triangle> adjTriangles = new ArrayList<Triangle>();
+			int l = 0;
+			for(int k = 0; k < vertexIndicesList.size(); k += 3)
+			{
+				if(vertexIndicesList.get(k) == j || 
+						vertexIndicesList.get(k + 1) == j ||
+						vertexIndicesList.get(k + 2) == j)
+				{
+					adjTriangles.add(triangleList.get(l));
+				}
+				l++;
+			}
+			
+			double sumOfX = 0;
+			double sumOfY = 0;
+			double sumOfZ = 0;
+			double lengthOfSum = 0;
+			
+			for(Triangle t : adjTriangles)
+			{
+				sumOfX += t.getVn().getX();
+				sumOfY += t.getVn().getY();
+				sumOfZ += t.getVn().getZ();
+			}
+			
+			lengthOfSum = dist2p(new int[]{0,0,0}, 
+					new int[]{(int)sumOfX, (int)sumOfY, (int)sumOfX});
+			
+			v.setVn(new Vector(sumOfX/lengthOfSum, sumOfY/lengthOfSum, sumOfZ/lengthOfSum));
+			
+			//Vo
+    		double distToO = dist2p(new int[]{v.getX(), v.getY(), v.getZ()}, obs);
+    		v.setVo(new Vector((obs[0]-v.getX())/distToO, 
+    				(obs[1]-v.getY())/distToO, 
+    				(obs[2]-v.getZ())/distToO));
+			
+    		//Vl
+    		double distToL = dist2p(new int[]{v.getX(), v.getY(), v.getZ()}, light);
+    		v.setVl(new Vector((light[0]-v.getX())/distToL, 
+    				(light[1]-v.getY())/distToL, 
+    				(light[2]-v.getZ())/distToL));
+			
+			j++;
+		}
+		
+		phongLightModel(vertexList);
+    }
+    
     static int int2RGB( int red, int green, int blue)
 	{
 		red = red & 0x000000FF;
@@ -292,5 +365,55 @@ public class MainPanel extends JPanel
 	static int getBlue(int rgb)
 	{
 		return rgb & 0xFF;
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) 
+	{
+		Object source = e.getSource();
+		if(source == flatShadingButton)
+		{
+			shading = 0;
+			System.out.println("Click!");
+			repaintAll();
+		}
+		if(source == gouraudShadingButton)
+		{
+			shading = 1;
+			System.out.println("Click!");
+			repaintAll();
+		}
+		if(source == cameraChangeButton)
+		{
+			System.out.println("Click!");
+			obs[0] = Integer.parseInt(xCameraTF.getText());
+			obs[1] = Integer.parseInt(yCameraTF.getText());
+			obs[2] = Integer.parseInt(zCameraTF.getText());
+			if(obs[0] < 0)
+				imageCenter[0] = -Math.abs(imageCenter[0]);
+			else
+				imageCenter[0] = Math.abs(imageCenter[0]);
+			if(obs[1] < 0)
+				imageCenter[1] = -Math.abs(imageCenter[1]);
+			else
+				imageCenter[1] = Math.abs(imageCenter[1]);
+			if(obs[2] < 0)
+				imageCenter[2] = -Math.abs(imageCenter[2]);
+			else
+				imageCenter[2] = Math.abs(imageCenter[2]);
+			
+			initLightModel();
+			repaintAll();
+		}
+		if(source == lightChangeButton)
+		{
+			System.out.println("Click!");
+			light[0] = Integer.parseInt(xLightTF.getText());
+			light[1] = Integer.parseInt(yLightTF.getText());
+			light[2] = Integer.parseInt(zLightTF.getText());
+			
+			initLightModel();
+			repaintAll();
+		}
 	}
 }

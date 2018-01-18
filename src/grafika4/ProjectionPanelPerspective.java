@@ -3,7 +3,6 @@ package grafika4;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.util.ArrayList;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
@@ -116,23 +115,28 @@ public class ProjectionPanelPerspective extends JPanel
 		    				linesGoAway(targetPointArray);
 		    				
 		    				zbuffer[iy][ix] = z;
-		    				cbuffer[iy][ix] = MainPanel.int2RGB(
-		    						gourandShading(new Point(ix,iy), targetPointArray, 
-		    								new int[]{MainPanel.getRed(t.getV1().getColor()), 
-		    										MainPanel.getRed(t.getV2().getColor()), 
-		    										MainPanel.getRed(t.getV3().getColor())}), 
-		    						gourandShading(new Point(ix,iy), targetPointArray, 
-		    								new int[]{MainPanel.getGreen(t.getV1().getColor()), 
-		    										MainPanel.getGreen(t.getV2().getColor()), 
-		    										MainPanel.getGreen(t.getV3().getColor())}), 
-		    						gourandShading(new Point(ix,iy), targetPointArray, 
-		    								new int[]{MainPanel.getBlue(t.getV1().getColor()), 
-		    										MainPanel.getBlue(t.getV2().getColor()), 
-		    										MainPanel.getBlue(t.getV3().getColor())}));
-		    				
-		    				/*cbuffer[iy][ix] = flatShadingColor(new Point(ix,iy), new int[]{t.getV1().getColor(), 
-		    						t.getV2().getColor(), 
-		    						t.getV3().getColor()});*/
+		    				if(MainPanel.shading == 1)
+		    				{
+			    				cbuffer[iy][ix] = MainPanel.int2RGB(
+			    						gourandShading(new Point(ix,iy), targetPointArray, 
+			    								new int[]{MainPanel.getRed(t.getV1().getColor()), 
+			    										MainPanel.getRed(t.getV2().getColor()), 
+			    										MainPanel.getRed(t.getV3().getColor())}), 
+			    						gourandShading(new Point(ix,iy), targetPointArray, 
+			    								new int[]{MainPanel.getGreen(t.getV1().getColor()), 
+			    										MainPanel.getGreen(t.getV2().getColor()), 
+			    										MainPanel.getGreen(t.getV3().getColor())}), 
+			    						gourandShading(new Point(ix,iy), targetPointArray, 
+			    								new int[]{MainPanel.getBlue(t.getV1().getColor()), 
+			    										MainPanel.getBlue(t.getV2().getColor()), 
+			    										MainPanel.getBlue(t.getV3().getColor())}));
+		    				}
+		    				if(MainPanel.shading == 0)
+		    				{
+			    				cbuffer[iy][ix] = flatShadingColor(new Point(ix,iy), new int[]{t.getV1().getColor(), 
+			    						t.getV2().getColor(), 
+			    						t.getV3().getColor()});
+		    				}
 		    			}
     				}
     			}

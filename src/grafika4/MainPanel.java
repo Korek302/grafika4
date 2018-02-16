@@ -49,20 +49,20 @@ public class MainPanel extends JPanel implements ActionListener
     	
     	obs = new int[4];//--+ dla suzanne2
 		obs[0] = -500;
-		obs[1] = 500;
-		obs[2] = -500;
+		obs[1] = -500;
+		obs[2] = 500;
 		obs[3] = 1;
 		
 		imageCenter = new int[4];
 		imageCenter[0] = -50;
-		imageCenter[1] = 50;
-		imageCenter[2] = -50;
+		imageCenter[1] = -50;
+		imageCenter[2] = 50;
 		imageCenter[3] = 1;
 		
 		light = new int[4];
 		light[0] = 500;
 		light[1] = 500;
-		light[2] = 500;
+		light[2] = -500;
 		light[3] = 1;
 		
 		shading = 0;

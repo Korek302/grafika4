@@ -95,10 +95,25 @@ public class ProjectionPanelZY extends JPanel implements ActionListener, MouseLi
     			i++;
     		}
     		
+    		int maxX = (int) Math.max(targetPointArray[0].getX(), 
+    				Math.max(targetPointArray[1].getX(), targetPointArray[2].getX()));
+    		int minX = (int) Math.min(targetPointArray[0].getX(), 
+    				Math.min(targetPointArray[1].getX(), targetPointArray[2].getX()));
+    		
+    		int maxY = (int) Math.max(targetPointArray[0].getY(), 
+    				Math.max(targetPointArray[1].getY(), targetPointArray[2].getY()));
+    		int minY = (int) Math.min(targetPointArray[0].getY(), 
+    				Math.min(targetPointArray[1].getY(), targetPointArray[2].getY()));
+    		
+    		maxX = maxX > this.getWidth() - 1 ? this.getWidth() - 1 : maxX;
+    		minX = minX < 0 ? 0 : minX;
+    		maxY = maxY > this.getHeight() - 1 ? this.getHeight() - 1 : maxY;
+    		minY = minY < 0 ? 0 : minY;
+    		
     		int z = 99999;
-    		for(int iy = 0; iy < this.getHeight(); iy++)
+    		for(int iy = minY; iy < maxY + 1; iy++)
     		{
-    			for(int ix = 0; ix < this.getWidth(); ix++)
+    			for(int ix = minX; ix < maxX + 1; ix++)
     			{
     				if(PointInTriangle(new Point(ix,iy), targetPointArray[0], targetPointArray[1], targetPointArray[2]))
     				{
@@ -143,9 +158,9 @@ public class ProjectionPanelZY extends JPanel implements ActionListener, MouseLi
     				}
     			}
     		}
-    		for(int j = 0; j < this.getHeight(); j++)
+    		for(int j = minY; j < maxY + 1; j++)
     		{
-    			for(int k = 0; k < this.getWidth(); k++)
+    			for(int k = minX; k < maxX + 1; k++)
     			{
     				g.setColor(new Color(cbuffer[j][k]));
     				g.drawLine(k, j, k, j);

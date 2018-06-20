@@ -47,7 +47,7 @@ public class MainPanel extends JPanel implements ActionListener
     {
     	setLayout(null);
     	
-    	obs = new int[4];//--+ dla suzanne2
+    	obs = new int[4];
 		obs[0] = -500;
 		obs[1] = -500;
 		obs[2] = 500;
@@ -296,7 +296,7 @@ public class MainPanel extends JPanel implements ActionListener
     	int j = 0;
 		for(Vertex v : vertexList)
 		{
-			//Vn - KIEPSKO kazdy przylegly trojkat traktowany tak samo (taka sama waga)
+			//Vn
 			ArrayList<Triangle> adjTriangles = new ArrayList<Triangle>();
 			int l = 0;
 			for(int k = 0; k < vertexIndicesList.size(); k += 3)
@@ -402,7 +402,7 @@ public class MainPanel extends JPanel implements ActionListener
 			else
 				imageCenter[2] = Math.abs(imageCenter[2]);
 			
-			initLightModel();
+			//initLightModel();
 			repaintAll();
 		}
 		if(source == lightChangeButton)
